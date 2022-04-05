@@ -21,6 +21,10 @@ void test_state_create() {
 	TEST_ASSERT(info->score == 0);
 
 	// Προσθέστε επιπλέον ελέγχους
+	List objects = state_objects(state, 0, -800);
+	TEST_ASSERT(objects != NULL);
+	
+
 }
 
 void test_state_update() {
@@ -44,8 +48,38 @@ void test_state_update() {
 	new_rect = state_info(state)->jet->rect;
 
 	TEST_CHECK( new_rect.x == old_rect.x && new_rect.y == old_rect.y - 6 );
+	keys.up = false;
+
 
 	// Προσθέστε επιπλέον ελέγχους
+	
+
+	// Με πατημένο το κάτω βέλος, το αεροσκάφος μετακινείται 2 pixels μπροστά
+	keys.down = true;
+	old_rect = state_info(state)->jet->rect;
+	state_update(state, &keys);
+	new_rect = state_info(state)->jet->rect;
+
+	TEST_CHECK( new_rect.x == old_rect.x && new_rect.y == old_rect.y - 2 );
+	keys.down = false;
+
+	// Με πατημένο το δεξί βέλος, το αεροσκάφος μετακινείται 2 pixels δεξιά
+	keys.right = true;
+	old_rect = state_info(state)->jet->rect;
+	state_update(state, &keys);
+	new_rect = state_info(state)->jet->rect;
+
+	TEST_CHECK( new_rect.x == old_rect.x + 3 && new_rect.y == old_rect.y - 3);
+	keys.right = false;
+
+	// Με πατημένο το αριστερό βέλος, το αεροσκάφος μετακινείται 2 pixels αριστερά
+	keys.left = true;
+	old_rect = state_info(state)->jet->rect;
+	state_update(state, &keys);
+	new_rect = state_info(state)->jet->rect;
+
+	TEST_CHECK( new_rect.x == old_rect.x - 3 && new_rect.y == old_rect.y - 3);
+	keys.left = false;
 }
 
 

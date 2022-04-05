@@ -126,24 +126,127 @@ State state_create() {
 // Επιστρέφει τις βασικές πληροφορίες του παιχνιδιού στην κατάσταση state
 
 StateInfo state_info(State state) {
-	// Προς υλοποίηση
-	return NULL;
+	return &state->info;
 }
 
 // Επιστρέφει μια λίστα με όλα τα αντικείμενα του παιχνιδιού στην κατάσταση state,
 // των οποίων η συντεταγμένη y είναι ανάμεσα στο y_from και y_to.
 
 List state_objects(State state, float y_from, float y_to) {
-	// Προς υλοποίηση
-	return NULL;
+	List list = list_create(NULL);
+	for(ListNode node = list_first(state->objects);
+		node != LIST_EOF;
+		node = list_next(state->objects, node)) {
+
+		Object temp_object = list_node_value(state->objects, node);
+		if (temp_object->rect.y >= y_from && temp_object->rect.y <= y_to)  {
+			list_insert_next(list, node, temp_object);
+		}
+	}
+	return list;
 }
 
 // Ενημερώνει την κατάσταση state του παιχνιδιού μετά την πάροδο 1 frame.
 // Το keys περιέχει τα πλήκτρα τα οποία ήταν πατημένα κατά το frame αυτό.
 
 void state_update(State state, KeyState keys) {
-	// Προς υλοποίηση
+	
+	// jet movement
+	
+	if (keys->up == true)  {
+		state->info.jet->rect.y -= 6;
+	}
+	else if (keys->down == true)  {
+		state->info.jet->rect.y -= 2;
+	}
+	else if (keys->right == true)  {
+		state->info.jet->rect.x += 3;
+		state->info.jet->rect.y -= 3;
+	}
+	else if (keys->left == true)  {
+		state->info.jet->rect.x -= 3;
+		state->info.jet->rect.y -= 3;
+	}
+	else  {
+		state->info.jet->rect.y -= 3;
+	}
+	
+
+	// enemy movement
+
+	List list = state_objects(state, 0, -800);
+	for(ListNode node = list_first(list);
+		node != LIST_EOF;
+		node = list_next(list, node)) {
+
+		Object temp_object = list_node_value(state->objects, node);
+		if (temp_object->type == HELICOPTER)  {
+			if (temp_object->forward == true)  {
+				temp_object->rect.x += 4;
+			}
+			else  {
+				temp_object->rect.x -= 4;
+			}
+		}
+		else if (temp_object->type == WARSHIP)  {
+			if (temp_object->forward == true)  {
+				temp_object->rect.x += 3;
+			}
+			else  {
+				temp_object->rect.x -= 3;
+			}
+		}
+	}
+
+
+	// collisions
+
+	for(ListNode node = list_first(list);
+		node != LIST_EOF;
+		node = list_next(list, node)) {
+
+		Object temp_object = list_node_value(state->objects, node);
+		if (temp_object->type == HELICOPTER ||
+			temp_object->type == WARSHIP ||
+			temp_object->type == TERAIN ||
+			temp_object->type == BRIDGE)  {
+
+			if (CheckCollisionRecs(state->info.jet->rect, temp_object->rect) == true)  {
+				state->info.playing = false;
+			}
+		}
+		Object temp_terain;
+		if (temp_object->type == HELICOPTER ||
+			temp_object->type == WARSHIP)  {
+
+			for(ListNode node = list_first(list);
+				node != LIST_EOF;
+				node = list_next(list, node)) {
+
+				Object temp_object2 = list_node_value(state->objects, node);
+				if (temp_object2->type == TERAIN)  {
+					temp_terain = temp_object2;
+				}
+			}
+			if (CheckCollisionRecs(temp_terain->rect, temp_object->rect) == true)  {
+				state->info.playing = false;
+			}
+		}
+	}
+
+
+	// start and stop
+
+	if (state->info.playing == false && keys->enter == true)  {
+		state->info.playing = true;
+	}
+	if (state->info.paused == true && keys->n == true)  {
+		state_update(state, keys);
+	}
 }
+
+
+
 
 // Καταστρέφει την κατάσταση state ελευθερώνοντας τη δεσμευμένη μνήμη.
 
