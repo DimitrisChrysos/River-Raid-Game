@@ -21,10 +21,24 @@ void test_state_create() {
 	TEST_ASSERT(info->score == 0);
 
 	// Προσθέστε επιπλέον ελέγχους
+	TEST_ASSERT(info->missile == NULL);
 	List objects = state_objects(state, 0, -800);
 	TEST_ASSERT(objects != NULL);
 	
 
+	for(ListNode node = list_first(objects);
+		node != LIST_EOF;
+		node = list_next(objects, node)) {
+
+		Object temp_object = list_node_value(objects, node);
+		TEST_ASSERT(temp_object->rect.y >= 0 && temp_object->rect.y <= -800);
+	}
+	objects = state_objects(state, 50, 500);
+	TEST_ASSERT(objects != NULL);
+	objects = state_objects(state, 10, 1000);
+	TEST_ASSERT(objects != NULL);
+	objects = state_objects(state, 200, 700);
+	TEST_ASSERT(objects != NULL);
 }
 
 void test_state_update() {
@@ -80,6 +94,46 @@ void test_state_update() {
 
 	TEST_CHECK( new_rect.x == old_rect.x - 3 && new_rect.y == old_rect.y - 3);
 	keys.left = false;
+
+	// Έλεγχος κίνησης πυραύλων
+	keys.space = true;
+	state_update(state, &keys);
+	old_rect = state_info(state)->missile->rect;
+	state_update(state, &keys);
+	new_rect = state_info(state)->missile->rect;
+
+	TEST_CHECK( new_rect.x == old_rect.x && new_rect.y == old_rect.y - 10);
+	keys.space = false;
+
+	// Έλεγχος συγκρούσεων πυραύλων
+	keys.space = true;
+	state_update(state, &keys);
+	old_rect = state_info(state)->missile->rect;
+	state_update(state, &keys);
+	new_rect = state_info(state)->missile->rect;
+
+	for(ListNode node = list_first(state_objects(state, 0, -800));
+		node != LIST_EOF;
+		node = list_next(state_objects(state, 0, -800), node)) {
+
+		Object temp_object = list_node_value(state_objects(state, 0, -800), node);
+		Object temp_terain;
+		if (temp_object->type == TERAIN)  {
+			temp_terain = temp_object;
+		}
+		TEST_CHECK( CheckCollisionRecs(temp_terain->rect, state_info(state)->missile->rect));
+		Object temp_object2;
+		if (temp_object->type == HELICOPTER ||
+			temp_object->type == WARSHIP ||
+			temp_object->type == BRIDGE)  {
+
+			temp_object2 = temp_object;
+		}
+		TEST_CHECK( CheckCollisionRecs(temp_object2->rect, state_info(state)->missile->rect));
+	}
+
+	TEST_CHECK( new_rect.x == old_rect.x && new_rect.y == old_rect.y - 10);
+	keys.space = false;
 }
 
 

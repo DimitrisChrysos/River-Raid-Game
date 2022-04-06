@@ -1,7 +1,7 @@
 {
 	"c_project": {
 		// Όνομα του εκτελέσιμου προγράμματος (μόνο για μεταγλώττιση πολλών αρχείων & make)
-		"program": "state_test",
+		"program": "set_utils_test",
 
 		// Directory στο οποίο βρίσκεται το πρόγραμμα (μόνο για μεταγλώτισση με make)
 		"dir": "tests",
@@ -33,6 +33,7 @@
 		"stdbool.h": "c",
 		"limits": "c",
 		"type_traits": "c",
-		"typeinfo": "c"
+		"typeinfo": "c",
+		"set_utils.h": "c"
 	},
 }

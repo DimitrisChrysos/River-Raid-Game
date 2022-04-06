@@ -154,21 +154,21 @@ void state_update(State state, KeyState keys) {
 	// jet movement
 	
 	if (keys->up == true)  {
-		state->info.jet->rect.y -= 6;
+		state->info.jet->rect.y -= 6*state->speed_factor;
 	}
 	else if (keys->down == true)  {
-		state->info.jet->rect.y -= 2;
+		state->info.jet->rect.y -= 2*state->speed_factor;
 	}
 	else if (keys->right == true)  {
-		state->info.jet->rect.x += 3;
-		state->info.jet->rect.y -= 3;
+		state->info.jet->rect.x += 3*state->speed_factor;
+		state->info.jet->rect.y -= 3*state->speed_factor;
 	}
 	else if (keys->left == true)  {
-		state->info.jet->rect.x -= 3;
-		state->info.jet->rect.y -= 3;
+		state->info.jet->rect.x -= 3*state->speed_factor;
+		state->info.jet->rect.y -= 3*state->speed_factor;
 	}
 	else  {
-		state->info.jet->rect.y -= 3;
+		state->info.jet->rect.y -= 3*state->speed_factor;
 	}
 	
 
@@ -182,18 +182,18 @@ void state_update(State state, KeyState keys) {
 		Object temp_object = list_node_value(state->objects, node);
 		if (temp_object->type == HELICOPTER)  {
 			if (temp_object->forward == true)  {
-				temp_object->rect.x += 4;
+				temp_object->rect.x += 4*state->speed_factor;
 			}
 			else  {
-				temp_object->rect.x -= 4;
+				temp_object->rect.x -= 4*state->speed_factor;
 			}
 		}
 		else if (temp_object->type == WARSHIP)  {
 			if (temp_object->forward == true)  {
-				temp_object->rect.x += 3;
+				temp_object->rect.x += 3*state->speed_factor;
 			}
 			else  {
-				temp_object->rect.x -= 3;
+				temp_object->rect.x -= 3*state->speed_factor;
 			}
 		}
 	}
@@ -243,9 +243,77 @@ void state_update(State state, KeyState keys) {
 	if (state->info.paused == true && keys->n == true)  {
 		state_update(state, keys);
 	}
+
+
+	// ~~ missile mechanics ~~
+
+	// creating the missile
+	if (keys->space == true && state->info.missile == NULL)  {
+		state->info.missile = create_object(MISSLE, (SCREEN_WIDTH - 35)/2,  40, 35, 40);
+	}
+
+	// if there is a missile
+	if (state->info.missile != NULL)  {
+
+		// misile movement
+		state->info.missile->rect.y -= 10;
+
+		// misile collisions
+		for(ListNode node = list_first(list);
+			node != LIST_EOF;
+			node = list_next(list, node)) {
+
+			Object temp_object = list_node_value(state->objects, node);
+
+			// misile collision with the terain
+			Object temp_terain;
+			if (temp_object->type == TERAIN)  {
+				temp_terain = temp_object;
+			}
+			if (CheckCollisionRecs(temp_terain->rect, state->info.missile->rect) == true)  {
+				state->info.missile = NULL;
+			}
+
+			// misile collision with a helicopter, warship or a bridge
+			Object temp_object2;
+			if (temp_object->type == HELICOPTER ||
+				temp_object->type == WARSHIP ||
+				temp_object->type == BRIDGE)  {
+
+				temp_object2 = temp_object;
+			}
+			ListNode previous_node;
+			if (CheckCollisionRecs(temp_object2->rect, state->info.missile->rect) == true)  {
+				state->info.missile = NULL;
+				list_remove_next(list, previous_node);
+				state->info.score += 10;
+			}
+			previous_node = node;
+		}
+	}
+	
+
+	//making the track "infinite"
+	int count_bridges = 0;
+	for(ListNode node = list_first(list);
+		node != LIST_EOF;
+		node = list_next(list, node)) {
+
+		Object temp_object = list_node_value(state->objects, node);
+		if (temp_object->type == BRIDGE)  {
+			count_bridges++;
+		}
+		temp_object = list_node_value(state->objects, list_next(list, node));
+		if (count_bridges == BRIDGE_NUM - 1)  {
+			if (state->info.jet->rect.y == temp_object->rect.y + 800)  {
+				add_objects(state, temp_object->rect.y);
+				state->speed_factor += state->speed_factor*0.3;
+			}
+		}
+	}
 }
-
-
+//BRIDGE_NUM
+//TERAIN, HELICOPTER, WARSHIP, JET, MISSLE, BRIDGE
 
 
 // Καταστρέφει την κατάσταση state ελευθερώνοντας τη δεσμευμένη μνήμη.
