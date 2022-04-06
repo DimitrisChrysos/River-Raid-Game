@@ -2,7 +2,9 @@
 #include <stdlib.h>
 
 #include "ADTList.h"
+#include "ADTSet.h"
 #include "state.h"
+#include "set_utils.h"
 
 
 // Οι ολοκληρωμένες πληροφορίες της κατάστασης του παιχνιδιού.
@@ -10,7 +12,7 @@
 // δεν είναι ορατό στον χρήστη.
 
 struct state {
-	List objects;			// περιέχει στοιχεία Object (Εδαφος / Ελικόπτερα / Πλοία/ Γέφυρες)
+	Set objects;			// περιέχει στοιχεία Object (Εδαφος / Ελικόπτερα / Πλοία/ Γέφυρες)
 	struct state_info info;	// Γενικές πληροφορίες για την κατάσταση του παιχνιδιού
 	float speed_factor;		// Πολλαπλασιαστής ταχύτητς (1 = κανονική ταχύτητα, 2 = διπλάσια, κλπ)
 };
@@ -80,9 +82,9 @@ static void add_objects(State state, float start_y) {
 			4*SPACING						// Υψος καλύπτει το χώρο ανάμεσα σε 2 γέφυρες
 		);
 
-		list_insert_next(state->objects, list_last(state->objects), terain_left);
-		list_insert_next(state->objects, list_last(state->objects), terain_right);
-		list_insert_next(state->objects, list_last(state->objects), bridge);
+		set_insert(state->objects, terain_left);
+		set_insert(state->objects, terain_right);
+		set_insert(state->objects, bridge);
 
 		// Προσθήκη 3 εχθρών πριν από τη γέφυρα.
 		for (int j = 0; j < 3; j++) {
@@ -94,9 +96,30 @@ static void add_objects(State state, float start_y) {
 				: create_object(HELICOPTER, (SCREEN_WIDTH - 66)/2, y, 66, 25);
 			enemy->forward = rand() % 2 == 0;	// Τυχαία αρχική κατεύθυνση
 
-			list_insert_next(state->objects, list_last(state->objects), enemy);
+			set_insert(state->objects, enemy);
 		}
 	}
+}
+
+// Συγκρίνει τα objects για την set_create
+
+int compare_objects(Pointer a, Pointer b)  {
+	Object obj_a = a;
+	Object obj_b = b;
+	if (obj_a->rect.y < obj_b->rect.y)  {
+		return 1;
+	}
+	else if (obj_a->rect.y > obj_b->rect.y)  {
+		return -1;
+	}
+	else if (a < b)  {
+		return 1;
+	}
+	else if (a > b)  {
+		return -1;
+	}
+	else
+		return 0; 
 }
 
 // Δημιουργεί και επιστρέφει την αρχική κατάσταση του παιχνιδιού
@@ -115,9 +138,9 @@ State state_create() {
 	// Δημιουργία του αεροσκάφους, κεντραρισμένο οριζόντια και με y = 0
 	state->info.jet = create_object(JET, (SCREEN_WIDTH - 35)/2,  0, 35, 40);
 
-	// Δημιουργούμε τη λίστα των αντικειμένων, και προσθέτουμε αντικείμενα
+	// Δημιουργούμε το set των αντικειμένων, και προσθέτουμε αντικείμενα
 	// ξεκινώντας από start_y = 0.
-	state->objects = list_create(NULL);
+	state->objects = set_create(compare_objects, NULL);
 	add_objects(state, 0);
 
 	return state;
@@ -134,14 +157,36 @@ StateInfo state_info(State state) {
 
 List state_objects(State state, float y_from, float y_to) {
 	List list = list_create(NULL);
-	for(ListNode node = list_first(state->objects);
-		node != LIST_EOF;
-		node = list_next(state->objects, node)) {
 
-		Object temp_object = list_node_value(state->objects, node);
-		if (temp_object->rect.y >= y_from && temp_object->rect.y <= y_to)  {
-			list_insert_next(list, node, temp_object);
-		}
+
+	Object obj1 = malloc(sizeof(*obj1));
+	obj1->rect.y = y_from;
+	Object first = set_find_eq_or_greater(state->objects, obj1);
+
+	Object obj2 = malloc(sizeof(*obj2));
+	obj2->rect.y = y_to;
+	Object last = set_find_eq_or_greater(state->objects, obj2);
+ 
+	//first way
+	// ListNode list_node = LIST_BOF;
+	// for (SetNode node = set_find_node(state->objects, first) ; 
+	// 	node == set_find_node(state->objects, last) ; 
+	// 	set_next(state->objects, node))  {
+		
+	// 	list_node = list_next(list, list_node);
+	// 	list_insert_next(list, list_node, set_node_value(state->objects, node));
+
+	// }
+	// return list;
+
+	//second way
+	ListNode list_node = LIST_BOF;
+	SetNode set_node = set_find_node(state->objects, first);
+	for (Pointer value = first ; value == last ; value = set_node_value(state->objects, set_node))  {
+		
+		list_node = list_next(list, list_node);
+		list_insert_next(list, list_node, set_node_value(state->objects, set_node));
+		SetNode set_node = set_next(state->objects, set_node);
 	}
 	return list;
 }
@@ -174,7 +219,7 @@ void state_update(State state, KeyState keys) {
 
 	// enemy movement
 
-	List list = state_objects(state, 0, -800);
+	List list = state_objects(state, state->info.jet->rect.y + 800, state->info.jet->rect.y - 800);
 	for(ListNode node = list_first(list);
 		node != LIST_EOF;
 		node = list_next(list, node)) {
@@ -215,9 +260,41 @@ void state_update(State state, KeyState keys) {
 				state->info.playing = false;
 			}
 		}
+		// Object temp_terain;
+		// if (temp_object->type == HELICOPTER ||
+		// 	temp_object->type == WARSHIP)  {
+
+		// 	for(ListNode node = list_first(list);
+		// 		node != LIST_EOF;
+		// 		node = list_next(list, node)) {
+
+		// 		Object temp_object2 = list_node_value(list, node);
+		// 		if (temp_object2->type == TERAIN)  {
+		// 			temp_terain = temp_object2;
+		// 		}
+		// 	}
+		// 	if (CheckCollisionRecs(temp_terain->rect, temp_object->rect) == true)  {
+		// 		state->info.playing = false;
+		// 	}
+		// }
+
 		Object temp_terain;
-		if (temp_object->type == HELICOPTER ||
-			temp_object->type == WARSHIP)  {
+		if (temp_object->type == HELICOPTER)  {
+
+			for(ListNode node = list_first(list);
+				node != LIST_EOF;
+				node = list_next(list, node)) {
+
+				Object temp_object2 = list_node_value(list, node);
+				if (temp_object2->type == TERAIN)  {
+					temp_terain = temp_object2;
+				}
+			}
+			if (CheckCollisionRecs(temp_terain->rect, temp_object->rect) == true)  {
+				state->info.playing = false;
+			}
+		}
+		if (temp_object->type == WARSHIP)  {
 
 			for(ListNode node = list_first(list);
 				node != LIST_EOF;
@@ -312,6 +389,8 @@ void state_update(State state, KeyState keys) {
 		}
 	}
 }
+//BRIDGE_NUM
+//TERAIN, HELICOPTER, WARSHIP, JET, MISSLE, BRIDGE
 
 
 // Καταστρέφει την κατάσταση state ελευθερώνοντας τη δεσμευμένη μνήμη.

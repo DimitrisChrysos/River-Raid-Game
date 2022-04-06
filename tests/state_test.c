@@ -31,13 +31,13 @@ void test_state_create() {
 		node = list_next(objects, node)) {
 
 		Object temp_object = list_node_value(objects, node);
-		TEST_ASSERT(temp_object->rect.y >= 0 && temp_object->rect.y <= -800);
+		TEST_ASSERT(temp_object->rect.y <= 0 && temp_object->rect.y >= -800);
 	}
-	objects = state_objects(state, 50, 500);
+	objects = state_objects(state, -50, -500);
 	TEST_ASSERT(objects != NULL);
-	objects = state_objects(state, 10, 1000);
+	objects = state_objects(state, -10, -1000);
 	TEST_ASSERT(objects != NULL);
-	objects = state_objects(state, 200, 700);
+	objects = state_objects(state, -200, -700);
 	TEST_ASSERT(objects != NULL);
 }
 
