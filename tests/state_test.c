@@ -134,6 +134,9 @@ void test_state_update() {
 
 	TEST_CHECK( new_rect.x == old_rect.x && new_rect.y == old_rect.y - 10);
 	keys.space = false;
+
+	// Έλεγχος συγκρούσεων εχθρών με terain
+	
 }
 
 

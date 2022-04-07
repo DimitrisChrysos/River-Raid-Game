@@ -166,20 +166,8 @@ List state_objects(State state, float y_from, float y_to) {
 	Object obj2 = malloc(sizeof(*obj2));
 	obj2->rect.y = y_to;
 	Object last = set_find_eq_or_greater(state->objects, obj2);
- 
-	//first way
-	// ListNode list_node = LIST_BOF;
-	// for (SetNode node = set_find_node(state->objects, first) ; 
-	// 	node == set_find_node(state->objects, last) ; 
-	// 	set_next(state->objects, node))  {
-		
-	// 	list_node = list_next(list, list_node);
-	// 	list_insert_next(list, list_node, set_node_value(state->objects, node));
 
-	// }
-	// return list;
 
-	//second way
 	ListNode list_node = LIST_BOF;
 	SetNode set_node = set_find_node(state->objects, first);
 	for (Pointer value = first ; value == last ; value = set_node_value(state->objects, set_node))  {
@@ -260,53 +248,26 @@ void state_update(State state, KeyState keys) {
 				state->info.playing = false;
 			}
 		}
-		// Object temp_terain;
-		// if (temp_object->type == HELICOPTER ||
-		// 	temp_object->type == WARSHIP)  {
 
-		// 	for(ListNode node = list_first(list);
-		// 		node != LIST_EOF;
-		// 		node = list_next(list, node)) {
-
-		// 		Object temp_object2 = list_node_value(list, node);
-		// 		if (temp_object2->type == TERAIN)  {
-		// 			temp_terain = temp_object2;
-		// 		}
-		// 	}
-		// 	if (CheckCollisionRecs(temp_terain->rect, temp_object->rect) == true)  {
-		// 		state->info.playing = false;
-		// 	}
-		// }
-
-		Object temp_terain;
-		if (temp_object->type == HELICOPTER)  {
-
-			for(ListNode node = list_first(list);
-				node != LIST_EOF;
-				node = list_next(list, node)) {
-
-				Object temp_object2 = list_node_value(list, node);
-				if (temp_object2->type == TERAIN)  {
-					temp_terain = temp_object2;
-				}
-			}
-			if (CheckCollisionRecs(temp_terain->rect, temp_object->rect) == true)  {
-				state->info.playing = false;
-			}
+		Object terain1;
+		Object terain2;
+		float x_left;
+		float x_right;
+		if (temp_object->type == TERAIN && terain1 == NULL)  {
+			terain1 = temp_object;
+			x_left = terain1->rect.x;
 		}
-		if (temp_object->type == WARSHIP)  {
+		else if (temp_object->type == TERAIN && terain2 == NULL)  {
+			terain2 = temp_object;
+			x_right = terain1->rect.x;
+			terain1 = NULL;
+			terain2 = NULL;
+		}
+		if (temp_object->type == HELICOPTER ||
+			temp_object->type == WARSHIP)  {
 
-			for(ListNode node = list_first(list);
-				node != LIST_EOF;
-				node = list_next(list, node)) {
-
-				Object temp_object2 = list_node_value(list, node);
-				if (temp_object2->type == TERAIN)  {
-					temp_terain = temp_object2;
-				}
-			}
-			if (CheckCollisionRecs(temp_terain->rect, temp_object->rect) == true)  {
-				state->info.playing = false;
+			if (temp_object->rect.x == x_left || temp_object->rect.x == x_right)  {
+				temp_object->forward = - temp_object->forward;
 			}
 		}
 	}

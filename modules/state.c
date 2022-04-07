@@ -229,7 +229,7 @@ void state_update(State state, KeyState keys) {
 				}
 			}
 			if (CheckCollisionRecs(temp_terain->rect, temp_object->rect) == true)  {
-				state->info.playing = false;
+				temp_object->forward = - temp_object->forward;
 			}
 		}
 	}
