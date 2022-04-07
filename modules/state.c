@@ -159,16 +159,15 @@ void state_update(State state, KeyState keys) {
 	else if (keys->down == true)  {
 		state->info.jet->rect.y -= 2*state->speed_factor;
 	}
-	else if (keys->right == true)  {
-		state->info.jet->rect.x += 3*state->speed_factor;
+	else  {
 		state->info.jet->rect.y -= 3*state->speed_factor;
+	}
+
+	if (keys->right == true)  {
+		state->info.jet->rect.x += 3*state->speed_factor;
 	}
 	else if (keys->left == true)  {
 		state->info.jet->rect.x -= 3*state->speed_factor;
-		state->info.jet->rect.y -= 3*state->speed_factor;
-	}
-	else  {
-		state->info.jet->rect.y -= 3*state->speed_factor;
 	}
 	
 

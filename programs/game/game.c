@@ -1,9 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////
-//
-// Παράδειγμα δημιουργίας ενός παιχνιδιού χρησιμοποιώντας τη βιβλιοθήκη raylib
-//
-//////////////////////////////////////////////////////////////////////////////
-
 #include <stdio.h>
 #include "raylib.h"
 
@@ -13,13 +7,26 @@
 State state;
 
 void update_and_draw() {
-	state_update(state);
+    struct key_state keys = {
+        .left = IsKeyDown(KEY_LEFT),
+        .right = IsKeyDown(KEY_RIGHT),
+        .up = IsKeyDown(KEY_UP),
+        .down = IsKeyDown(KEY_DOWN),
+        .space = IsKeyDown(KEY_SPACE),
+        .enter = IsKeyDown(KEY_ENTER),
+        .n = IsKeyDown(KEY_N),
+        .p = IsKeyDown(KEY_P)
+    };
+	state_update(state, &keys);
 	interface_draw_frame(state); 
 }
 
 int main() {
 	state = state_create();
 	interface_init();
+
+
+    
 
 	// Η κλήση αυτή καλεί συνεχόμενα την update_and_draw μέχρι ο χρήστης να κλείσει το παράθυρο
 	start_main_loop(update_and_draw);

@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "state.h"
 
 
 // Αρχικοποιεί το interface του παιχνιδιού
