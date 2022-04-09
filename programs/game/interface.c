@@ -24,6 +24,7 @@ void interface_close()  {
 // Σχεδιάζει ένα frame με την τωρινή κατάσταση του παιχνδιού
 void interface_draw_frame(State state)  {
     
+
     StateInfo info = state_info(state);
 
     // state -> screen:    αφαιρώ τα offsets
@@ -43,21 +44,30 @@ void interface_draw_frame(State state)  {
     BeginMode2D(camera);
     
 
+    // Σχεδιάζουμε το σκορ και το FPS counter
+	DrawText(TextFormat("%04i", info->score), 340, info->jet->rect.y - y_offset + -670, 40, GRAY);
+	DrawFPS(30, info->jet->rect.y - y_offset + -655);
+
 
     DrawCircle(info->jet->rect.x - x_offset, info->jet->rect.y - y_offset, 16, RED);
     
-    DrawCircle(400, 200, 16, YELLOW);
     
-    // List objects = state_objects(state, 0 , SCREEN_HEIGHT );
-    // for (ListNode node = list_first(objects);
-    //     node != LIST_EOF;
-    //     node = list_next(objects, node))  {
+    
+    List objects1 = state_objects(state, 0 , -SCREEN_HEIGHT+1 );
+    for (ListNode node = list_first(objects1);
+        node != LIST_EOF;
+        node = list_next(objects1, node))  {
             
-    //     Object obj = list_node_value(objects, node);
+        Object obj = list_node_value(objects1, node);
 
-    //     DrawCircle(obj->rect.x - x_offset, obj->rect.y - y_offset, 32, PURPLE);
-    // }
+        DrawCircle(obj->rect.x - x_offset, obj->rect.y - y_offset, 32, PURPLE);
+    }
+    
+    
+    //testing purposes
+    DrawCircle(400, 200, 16, YELLOW);
     DrawCircle(225, 200, 48, GREEN);
+    DrawCircle(400, -500, 32, YELLOW);
 
     EndDrawing();
 }

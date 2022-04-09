@@ -139,7 +139,7 @@ List state_objects(State state, float y_from, float y_to) {
 		node = list_next(state->objects, node)) {
 
 		Object temp_object = list_node_value(state->objects, node);
-		if (temp_object->rect.y >= y_from && temp_object->rect.y <= y_to)  {
+		if (temp_object->rect.y <= y_from && temp_object->rect.y >= y_to && list_size(list)<16)  {
 			list_insert_next(list, node, temp_object);
 		}
 	}
@@ -165,11 +165,9 @@ void state_update(State state, KeyState keys) {
 
 	if (keys->right == true)  {
 		state->info.jet->rect.x += 3*state->speed_factor;
-		printf("right key\n");
 	}
 	else if (keys->left == true)  {
 		state->info.jet->rect.x -= 3*state->speed_factor;
-		printf("left key\n");
 	}
 	
 
