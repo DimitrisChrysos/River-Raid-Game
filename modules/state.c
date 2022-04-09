@@ -1,4 +1,4 @@
-
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "ADTList.h"
@@ -160,14 +160,16 @@ void state_update(State state, KeyState keys) {
 		state->info.jet->rect.y -= 2*state->speed_factor;
 	}
 	else  {
-		state->info.jet->rect.y -= 3*state->speed_factor;
+		state->info.jet->rect.y -= 3*state->speed_factor; 
 	}
 
 	if (keys->right == true)  {
 		state->info.jet->rect.x += 3*state->speed_factor;
+		printf("right key\n");
 	}
 	else if (keys->left == true)  {
 		state->info.jet->rect.x -= 3*state->speed_factor;
+		printf("left key\n");
 	}
 	
 
