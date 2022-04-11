@@ -139,10 +139,15 @@ List state_objects(State state, float y_from, float y_to) {
 		node = list_next(state->objects, node)) {
 
 		Object temp_object = list_node_value(state->objects, node);
+		
+		//printf(" x cord = %f ||| y cord = %f ||| type = %d\n"
+		//	, temp_object->rect.x, temp_object->rect.y, temp_object->type);
 		if (temp_object->rect.y <= y_from && temp_object->rect.y >= y_to && list_size(list)<16)  {
-			list_insert_next(list, node, temp_object);
+			list_insert_next(list, LIST_BOF, temp_object);
+			
 		}
 	}
+	//printf("list size = %d\n", list_size(state->objects));
 	return list;
 }
 
@@ -173,7 +178,10 @@ void state_update(State state, KeyState keys) {
 
 	// enemy movement
 
-	List list = state_objects(state, 0, -800);
+	//state y offset
+    int state_y_offset = -state->info.jet->rect.y;
+
+	List list = state_objects(state, 0-state_y_offset , -SCREEN_HEIGHT - state_y_offset);
 	for(ListNode node = list_first(list);
 		node != LIST_EOF;
 		node = list_next(list, node)) {
@@ -195,16 +203,10 @@ void state_update(State state, KeyState keys) {
 				temp_object->rect.x -= 3*state->speed_factor;
 			}
 		}
-	}
+	
 
 
-	// collisions
-
-	for(ListNode node = list_first(list);
-		node != LIST_EOF;
-		node = list_next(list, node)) {
-
-		Object temp_object = list_node_value(list, node);
+		// collisions
 		if (temp_object->type == HELICOPTER ||
 			temp_object->type == WARSHIP ||
 			temp_object->type == TERAIN ||
@@ -228,7 +230,12 @@ void state_update(State state, KeyState keys) {
 				}
 			}
 			if (CheckCollisionRecs(temp_terain->rect, temp_object->rect) == true)  {
-				temp_object->forward = - temp_object->forward;
+				if (temp_object->forward == true)  {
+					temp_object->forward = false;
+				}
+				else if (temp_object->forward == false)  {
+					temp_object->forward = true;
+				}
 			}
 		}
 	}
@@ -302,9 +309,9 @@ void state_update(State state, KeyState keys) {
 		if (temp_object->type == BRIDGE)  {
 			count_bridges++;
 		}
-		temp_object = list_node_value(list, list_next(list, node));
+		temp_object = list_node_value(list, node);
 		if (count_bridges == BRIDGE_NUM - 1)  {
-			if (state->info.jet->rect.y == temp_object->rect.y + 800)  {
+			if (state->info.jet->rect.y == temp_object->rect.y - 800)  {
 				add_objects(state, temp_object->rect.y);
 				state->speed_factor += state->speed_factor*0.3;
 			}

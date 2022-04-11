@@ -341,7 +341,7 @@ void state_update(State state, KeyState keys) {
 		if (temp_object->type == BRIDGE)  {
 			count_bridges++;
 		}
-		temp_object = list_node_value(list, list_next(list, node));
+		temp_object = list_node_value(list, node);
 		if (count_bridges == BRIDGE_NUM - 1)  {
 			if (state->info.jet->rect.y == temp_object->rect.y + 800)  {
 				add_objects(state, temp_object->rect.y);
@@ -350,8 +350,6 @@ void state_update(State state, KeyState keys) {
 		}
 	}
 }
-//BRIDGE_NUM
-//TERAIN, HELICOPTER, WARSHIP, JET, MISSLE, BRIDGE
 
 
 // Καταστρέφει την κατάσταση state ελευθερώνοντας τη δεσμευμένη μνήμη.
