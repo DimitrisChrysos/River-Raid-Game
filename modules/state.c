@@ -191,7 +191,7 @@ void state_update(State state, KeyState keys) {
 			if (temp_object->forward == true)  {
 				temp_object->rect.x += 4*state->speed_factor;
 			}
-			else  {
+			else if (temp_object->forward == false)  {
 				temp_object->rect.x -= 4*state->speed_factor;
 			}
 		}
@@ -199,7 +199,7 @@ void state_update(State state, KeyState keys) {
 			if (temp_object->forward == true)  {
 				temp_object->rect.x += 3*state->speed_factor;
 			}
-			else  {
+			else if (temp_object->forward == false)  {
 				temp_object->rect.x -= 3*state->speed_factor;
 			}
 		}
@@ -245,9 +245,19 @@ void state_update(State state, KeyState keys) {
 
 	if (state->info.playing == false && keys->enter == true)  {
 		state->info.playing = true;
+		return;
 	}
-	if (state->info.paused == true && keys->n == true)  {
-		state_update(state, keys);
+
+	if (keys->p == true && state->info.paused == false)  {
+		state->info.paused = true;
+		return;
+	}
+	else if (keys->p == true && state->info.paused == true)  {
+		state->info.paused = false;
+		return;
+	}
+	else if (keys->n == true && state->info.paused == true)  {
+		return;
 	}
 
 

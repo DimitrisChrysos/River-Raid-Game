@@ -64,7 +64,7 @@ void interface_draw_frame(State state)  {
     int state_y_offset = -info->jet->rect.y;
     
     // Σχεδιάζουμε τα objects
-    List objects1 = state_objects(state, 0-state_y_offset + SCREEN_HEIGHT  , -SCREEN_HEIGHT - state_y_offset);
+    List objects1 = state_objects(state, 0-state_y_offset + SCREEN_HEIGHT  , - 2*SCREEN_HEIGHT - state_y_offset);
     for (ListNode node = list_first(objects1);
         node != LIST_EOF;
         node = list_next(objects1, node))  {
@@ -75,20 +75,18 @@ void interface_draw_frame(State state)  {
 
         if (obj->type == TERAIN)  {
             Object temp_obj = create_object(TERAIN, obj->rect.x, 
-            obj->rect.y, obj->rect.width, obj->rect.height);
+            obj->rect.y - y_offset, obj->rect.width, obj->rect.height);
             DrawRectangleRec(temp_obj->rect, GREEN);
         }
         if (obj->type == HELICOPTER)  {
-            DrawCircle(obj->rect.x, obj->rect.y - y_offset, 16, PURPLE);
-            //printf("jet coords: x = %f, y = %f\n", info->jet->rect.x, info->jet->rect.y);
-            //printf("helic coords: x = %f, y = %f\n", obj->rect.x, obj->rect.y);
+            DrawCircle(obj->rect.x - x_offset, obj->rect.y - y_offset, 16, PURPLE);
         }
         if (obj->type == WARSHIP)  {
-            DrawCircle(obj->rect.x, obj->rect.y - y_offset, 32, YELLOW);
+            DrawCircle(obj->rect.x - x_offset, obj->rect.y - y_offset, 32, YELLOW);
         }
         if (obj->type == BRIDGE)  {
             Object temp_obj = create_object(BRIDGE, obj->rect.x, 
-            obj->rect.y, obj->rect.width, obj->rect.height);
+            obj->rect.y - y_offset, obj->rect.width, obj->rect.height);
             DrawRectangleRec(temp_obj->rect, RED);
         }
     }
