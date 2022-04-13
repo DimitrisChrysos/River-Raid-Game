@@ -265,23 +265,23 @@ void state_update(State state, KeyState keys) {
 
 	// creating the missile
 	if (keys->space == true && state->info.missile == NULL)  {
-		state->info.missile = create_object(MISSLE, (SCREEN_WIDTH - 35)/2,  40, 35, 40);
+		state->info.missile = create_object(MISSLE, state->info.jet->rect.x,  state->info.jet->rect.y, 35, 40);
 	}
 
 	// if there is a missile
 	if (state->info.missile != NULL)  {
 
-		// misile movement
+		// missile movement
 		state->info.missile->rect.y -= 10;
 
-		// misile collisions
+		// missile collisions
 		for(ListNode node = list_first(list);
 			node != LIST_EOF;
 			node = list_next(list, node)) {
 
 			Object temp_object = list_node_value(list, node);
 
-			// misile collision with the terain
+			// missile collision with the terain
 			Object temp_terain;
 			if (temp_object->type == TERAIN)  {
 				temp_terain = temp_object;
@@ -290,7 +290,7 @@ void state_update(State state, KeyState keys) {
 				state->info.missile = NULL;
 			}
 
-			// misile collision with a helicopter, warship or a bridge
+			// missile collision with a helicopter, warship or a bridge
 			Object temp_object2;
 			if (temp_object->type == HELICOPTER ||
 				temp_object->type == WARSHIP ||

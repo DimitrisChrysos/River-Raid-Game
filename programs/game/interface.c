@@ -60,6 +60,11 @@ void interface_draw_frame(State state)  {
     // Σχεδιάζουμε το jet
     DrawCircle(info->jet->rect.x - x_offset, info->jet->rect.y - y_offset, 16, RED);
     
+    // Σχεδιάζουμε το missile
+    if (info->missile != NULL)  {
+        DrawCircle(info->missile->rect.x - x_offset, info->missile->rect.y - y_offset, 16, RED);
+    }
+
     //state y offset
     int state_y_offset = -info->jet->rect.y;
     

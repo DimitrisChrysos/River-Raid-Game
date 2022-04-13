@@ -5,11 +5,9 @@
 #include "state.h"
 
 State state;
-
-//for the saving of the starting state
-static int x=0;
 State first_state;
-StateInfo first_info;
+
+int x=0;
 
 void update_and_draw() {
     struct key_state keys = {
@@ -18,25 +16,18 @@ void update_and_draw() {
         .up = IsKeyDown(KEY_UP),
         .down = IsKeyDown(KEY_DOWN),
         .space = IsKeyDown(KEY_SPACE),
-        .enter = IsKeyDown(KEY_ENTER),
+        .enter = IsKeyPressed(KEY_ENTER),
         .n = IsKeyDown(KEY_N),
         .p = IsKeyPressed(KEY_P)
     };
     StateInfo info = state_info(state);
 
-    //saving the starting state
-    if (x == 0)  {
-        first_state = state;
-        first_info = info;
-        x = 1;
-    }
-
 
     //for every occasion
     if (info->playing == false)  {
         if (keys.enter == true)  {
-            state = first_state;
-            info = first_info;
+            //state = NULL;
+            state = state_create();
             state_update(state, &keys);
             interface_draw_frame(state);
             return;
@@ -70,7 +61,8 @@ int main() {
 	state = state_create();
 	interface_init();
 
-
+    //saving the starting state
+    first_state = state;
     
 
 	// Η κλήση αυτή καλεί συνεχόμενα την update_and_draw μέχρι ο χρήστης να κλείσει το παράθυρο
