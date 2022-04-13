@@ -8,17 +8,33 @@
 #define SCREEN_WIDTH 450	// Πλάτος της οθόνης
 #define SCREEN_HEIGHT 800	// Υψος της οθόνης
 
+// Assets
+Texture jet_img;
+Texture helicopter_img;
+Texture helicopter_img2;
+Texture warship_img;
+Texture warship_img2;
+Sound game_over_snd;
 
 // Αρχικοποιεί το interface του παιχνιδιού
 void interface_init()  {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "game");
 	SetTargetFPS(60);
-    //InitAudioDevice();
+    InitAudioDevice();
+
+    // Φόρτωση εικόνων και ήχων
+	jet_img = LoadTextureFromImage(LoadImage("assets/jet_img.png"));
+    helicopter_img = LoadTextureFromImage(LoadImage("assets/helicopter_img.png"));
+    helicopter_img2 = LoadTextureFromImage(LoadImage("assets/helicopter_img2.png"));
+    warship_img = LoadTextureFromImage(LoadImage("assets/warship_img.png"));
+    warship_img2 = LoadTextureFromImage(LoadImage("assets/warship_img2.png"));
+
+    game_over_snd = LoadSound("assets/game_over.mp3");
 }
 
 // Κλείνει το interface του παιχνιδιού
 void interface_close()  {
-    //CloseAudioDevice();
+    CloseAudioDevice();
 	CloseWindow();
 }
 
@@ -55,19 +71,25 @@ void interface_draw_frame(State state)  {
     BeginMode2D(camera);
     
 
-    
+    // Σχεδιάζουμε το μπλε background
+    DrawRectangle(info->jet->rect.x - SCREEN_WIDTH, info->jet->rect.y, 2*SCREEN_WIDTH, 2*SCREEN_HEIGHT, BLUE); 
 
     // Σχεδιάζουμε το jet
-    DrawCircle(info->jet->rect.x - x_offset, info->jet->rect.y - y_offset, 16, RED);
+    DrawTexture(jet_img, info->jet->rect.x - x_offset - 35/2, info->jet->rect.y - y_offset, WHITE);
     
     // Σχεδιάζουμε το missile
     if (info->missile != NULL)  {
-        DrawCircle(info->missile->rect.x - x_offset, info->missile->rect.y - y_offset, 16, RED);
+        
+        Rectangle missile_rect = info->missile->rect;
+        missile_rect.x -= x_offset + 5/2;
+        missile_rect.y -= y_offset + 40/2;
+        DrawRectangleRec(missile_rect, WHITE);
     }
 
     //state y offset
     int state_y_offset = -info->jet->rect.y;
     
+
     // Σχεδιάζουμε τα objects
     List objects1 = state_objects(state, 0-state_y_offset + SCREEN_HEIGHT  , - 2*SCREEN_HEIGHT - state_y_offset);
     for (ListNode node = list_first(objects1);
@@ -81,13 +103,23 @@ void interface_draw_frame(State state)  {
         if (obj->type == TERAIN)  {
             Object temp_obj = create_object(TERAIN, obj->rect.x, 
             obj->rect.y - y_offset, obj->rect.width, obj->rect.height);
-            DrawRectangleRec(temp_obj->rect, GREEN);
+            DrawRectangleRec(temp_obj->rect, DARKGREEN);
         }
         if (obj->type == HELICOPTER)  {
-            DrawCircle(obj->rect.x - x_offset, obj->rect.y - y_offset, 16, PURPLE);
+            if (obj->forward == true)  {
+                DrawTexture(helicopter_img, obj->rect.x - x_offset, obj->rect.y - y_offset, YELLOW);
+            }
+            if (obj->forward == false)  {
+                DrawTexture(helicopter_img2, obj->rect.x - x_offset, obj->rect.y - y_offset, YELLOW);
+            }
         }
         if (obj->type == WARSHIP)  {
-            DrawCircle(obj->rect.x - x_offset, obj->rect.y - y_offset, 32, YELLOW);
+            if (obj->forward == true)  {
+                DrawTexture(warship_img, obj->rect.x - x_offset, obj->rect.y - y_offset, RED);
+            }
+            else if (obj->forward == false)  {
+                DrawTexture(warship_img2, obj->rect.x - x_offset, obj->rect.y - y_offset, RED);
+            }
         }
         if (obj->type == BRIDGE)  {
             Object temp_obj = create_object(BRIDGE, obj->rect.x, 
@@ -102,6 +134,30 @@ void interface_draw_frame(State state)  {
     // Σχεδιάζουμε το σκορ και το FPS counter
 	DrawText(TextFormat("%04i", info->score), 340, info->jet->rect.y - y_offset + -670, 40, GRAY);
 	DrawFPS(30, info->jet->rect.y - y_offset + -655);
+
+
+    // Αν το παιχνίδι είναι paused, σχεδιάζομαι το μήνυμα για να ξαναρχίσει
+    if (info->paused == true) {
+		DrawText(
+			"PRESS [P] TO CONTINUE",
+			  GetScreenWidth() / 2 - MeasureText("PRESS [ENTER] TO CONTINUE", 20) / 2 + 40,
+			 info->jet->rect.y - y_offset - SCREEN_HEIGHT/2, 20, GRAY
+		);
+	}
+
+
+    // Αν το παιχνίδι έχει τελειώσει, σχεδιάζομαι το μήνυμα για να ξαναρχίσει
+	if (info->playing == false) {
+		DrawText(
+			"PRESS [ENTER] TO PLAY AGAIN",
+			  GetScreenWidth() / 2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20) / 2,
+			 info->jet->rect.y - y_offset - SCREEN_HEIGHT/2, 20, GRAY
+		);
+	}
+
+	// Ηχος, αν είμαστε στο frame που συνέβη το game_over
+	if(!info->playing == false)
+		PlaySound(game_over_snd);
 
     EndDrawing();
 }

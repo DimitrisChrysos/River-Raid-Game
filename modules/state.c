@@ -154,6 +154,7 @@ List state_objects(State state, float y_from, float y_to) {
 // Ενημερώνει την κατάσταση state του παιχνιδιού μετά την πάροδο 1 frame.
 // Το keys περιέχει τα πλήκτρα τα οποία ήταν πατημένα κατά το frame αυτό.
 
+
 void state_update(State state, KeyState keys) {
 	
 	// jet movement
@@ -220,16 +221,18 @@ void state_update(State state, KeyState keys) {
 		if (temp_object->type == HELICOPTER ||
 			temp_object->type == WARSHIP)  {
 
-			for(ListNode node = list_first(list);
+			for(ListNode node = list_first(state->objects);
 				node != LIST_EOF;
-				node = list_next(list, node)) {
+				node = list_next(state->objects, node)) {
 
-				Object temp_object2 = list_node_value(list, node);
+				Object temp_object2 = list_node_value(state->objects, node);
 				if (temp_object2->type == TERAIN)  {
 					temp_terain = temp_object2;
 				}
 			}
+			//printf("hmmmmmm\n");
 			if (CheckCollisionRecs(temp_terain->rect, temp_object->rect) == true)  {
+				//printf("hmmmmmm\n");
 				if (temp_object->forward == true)  {
 					temp_object->forward = false;
 				}
@@ -265,7 +268,7 @@ void state_update(State state, KeyState keys) {
 
 	// creating the missile
 	if (keys->space == true && state->info.missile == NULL)  {
-		state->info.missile = create_object(MISSLE, state->info.jet->rect.x,  state->info.jet->rect.y, 35, 40);
+		state->info.missile = create_object(MISSLE, state->info.jet->rect.x,  state->info.jet->rect.y, 5, 40/2);
 	}
 
 	// if there is a missile
@@ -275,11 +278,12 @@ void state_update(State state, KeyState keys) {
 		state->info.missile->rect.y -= 10;
 
 		// missile collisions
-		for(ListNode node = list_first(list);
+		ListNode previous_node;  //used to store the previous node later
+		for(ListNode node = list_first(state->objects);
 			node != LIST_EOF;
-			node = list_next(list, node)) {
+			node = list_next(state->objects, node)) {
 
-			Object temp_object = list_node_value(list, node);
+			Object temp_object = list_node_value(state->objects, node);
 
 			// missile collision with the terain
 			Object temp_terain;
@@ -288,6 +292,7 @@ void state_update(State state, KeyState keys) {
 			}
 			if (CheckCollisionRecs(temp_terain->rect, state->info.missile->rect) == true)  {
 				state->info.missile = NULL;
+				return;
 			}
 
 			// missile collision with a helicopter, warship or a bridge
@@ -297,12 +302,13 @@ void state_update(State state, KeyState keys) {
 				temp_object->type == BRIDGE)  {
 
 				temp_object2 = temp_object;
-			}
-			ListNode previous_node;
-			if (CheckCollisionRecs(temp_object2->rect, state->info.missile->rect) == true)  {
-				state->info.missile = NULL;
-				list_remove_next(list, previous_node);
-				state->info.score += 10;
+
+				
+				if (CheckCollisionRecs(temp_object2->rect, state->info.missile->rect) == true)  {
+					state->info.missile = NULL;
+					list_remove_next(state->objects, previous_node);
+					state->info.score += 10;
+				}
 			}
 			previous_node = node;
 		}
