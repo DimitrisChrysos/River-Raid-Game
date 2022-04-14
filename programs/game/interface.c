@@ -56,7 +56,6 @@ void interface_draw_frame(State state)  {
 
     // state -> screen:    αφαιρώ τα offsets
     // screen -> state:     προσθέτω τα offsets
-    int x_offset = (SCREEN_WIDTH - 35)/2 - 225;
     int y_offset = - (SCREEN_HEIGHT - 100);
     Camera2D camera = { 0 };
     camera.target = (Vector2){ (SCREEN_WIDTH - 35)/2, info->jet->rect.y};
@@ -70,35 +69,34 @@ void interface_draw_frame(State state)  {
     ClearBackground(RAYWHITE);
     BeginMode2D(camera);
     
-
+    
     // Σχεδιάζουμε το μπλε background
     DrawRectangle(info->jet->rect.x - SCREEN_WIDTH, info->jet->rect.y, 2*SCREEN_WIDTH, 2*SCREEN_HEIGHT, BLUE); 
 
     // Σχεδιάζουμε το jet
-    DrawTexture(jet_img, info->jet->rect.x - x_offset - 35/2, info->jet->rect.y - y_offset, WHITE);
+    DrawTexture(jet_img, info->jet->rect.x, info->jet->rect.y - y_offset, WHITE);
     
     // Σχεδιάζουμε το missile
     if (info->missile != NULL)  {
         
         Rectangle missile_rect = info->missile->rect;
-        missile_rect.x -= x_offset + 5/2;
         missile_rect.y -= y_offset + 40/2;
         DrawRectangleRec(missile_rect, WHITE);
     }
 
-    //state y offset
+    // state y offset
     int state_y_offset = -info->jet->rect.y;
     
 
     // Σχεδιάζουμε τα objects
-    List objects1 = state_objects(state, 0-state_y_offset + SCREEN_HEIGHT  , - 2*SCREEN_HEIGHT - state_y_offset);
+    List objects1 = state_objects(state, -state_y_offset + SCREEN_HEIGHT, - state_y_offset - 2*SCREEN_HEIGHT);
     for (ListNode node = list_first(objects1);
         node != LIST_EOF;
         node = list_next(objects1, node))  {
             
         Object obj = list_node_value(objects1, node);
         //printf(" x cord = %f ||| y cord = %f\n", obj->rect.x, obj->rect.y);
-        //DrawCircle(obj->rect.x - x_offset, obj->rect.y - y_offset, 32, PURPLE);
+        //DrawCircle(obj->rect.x, obj->rect.y - y_offset, 32, PURPLE);
 
         if (obj->type == TERAIN)  {
             Object temp_obj = create_object(TERAIN, obj->rect.x, 
@@ -107,18 +105,18 @@ void interface_draw_frame(State state)  {
         }
         if (obj->type == HELICOPTER)  {
             if (obj->forward == true)  {
-                DrawTexture(helicopter_img, obj->rect.x - x_offset, obj->rect.y - y_offset, YELLOW);
+                DrawTexture(helicopter_img, obj->rect.x, obj->rect.y - y_offset, YELLOW);
             }
             if (obj->forward == false)  {
-                DrawTexture(helicopter_img2, obj->rect.x - x_offset, obj->rect.y - y_offset, YELLOW);
+                DrawTexture(helicopter_img2, obj->rect.x, obj->rect.y - y_offset, YELLOW);
             }
         }
         if (obj->type == WARSHIP)  {
             if (obj->forward == true)  {
-                DrawTexture(warship_img, obj->rect.x - x_offset, obj->rect.y - y_offset, RED);
+                DrawTexture(warship_img, obj->rect.x, obj->rect.y - y_offset, RED);
             }
             else if (obj->forward == false)  {
-                DrawTexture(warship_img2, obj->rect.x - x_offset, obj->rect.y - y_offset, RED);
+                DrawTexture(warship_img2, obj->rect.x, obj->rect.y - y_offset, RED);
             }
         }
         if (obj->type == BRIDGE)  {
@@ -154,6 +152,8 @@ void interface_draw_frame(State state)  {
 			 info->jet->rect.y - y_offset - SCREEN_HEIGHT/2, 20, GRAY
 		);
 	}
+
+
 
 	// Ηχος, αν είμαστε στο frame που συνέβη το game_over
 	if(!info->playing == false)
