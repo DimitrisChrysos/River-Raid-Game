@@ -139,15 +139,11 @@ List state_objects(State state, float y_from, float y_to) {
 		node = list_next(state->objects, node)) {
 
 		Object temp_object = list_node_value(state->objects, node);
-		
-		//printf(" x cord = %f ||| y cord = %f ||| type = %d\n"
-		//	, temp_object->rect.x, temp_object->rect.y, temp_object->type);
-		if (temp_object->rect.y <= y_from && temp_object->rect.y >= y_to && list_size(list)<16)  {
+		if (temp_object->rect.y <= y_from && temp_object->rect.y >= y_to) {
 			list_insert_next(list, LIST_BOF, temp_object);
 			
 		}
 	}
-	//printf("list size = %d\n", list_size(state->objects));
 	return list;
 }
 
@@ -215,27 +211,25 @@ void state_update(State state, KeyState keys) {
 
 			if (CheckCollisionRecs(state->info.jet->rect, temp_object->rect) == true)  {
 				state->info.playing = false;
+				return;
 			}
 		}
-		Object temp_terain;
 		if (temp_object->type == HELICOPTER ||
 			temp_object->type == WARSHIP)  {
 
-			ListNode node;
-			for(node = list_first(state->objects);
+			for(ListNode node = list_first(state->objects);
 				node != LIST_EOF;
 				node = list_next(state->objects, node)) {
 
-				Object temp_object2 = list_node_value(state->objects, node);
-				if (temp_object2->type == TERAIN)  {
-					temp_terain = temp_object2;
-				}
-				if (CheckCollisionRecs(temp_object->rect, temp_terain->rect) == true)  {
-					if (temp_object->forward == true)  {
-						temp_object->forward = false;
-					}
-					else if (temp_object->forward == false)  {
-						temp_object->forward = true;
+				Object temp_terain = list_node_value(state->objects, node);
+				if (temp_terain->type == TERAIN)  {
+					if (CheckCollisionRecs(temp_object->rect, temp_terain->rect) == true)  {
+						if (temp_object->forward == true)  {
+							temp_object->forward = false;
+						}
+						else if (temp_object->forward == false)  {
+							temp_object->forward = true;
+						}
 					}
 				}
 			}
@@ -267,17 +261,22 @@ void state_update(State state, KeyState keys) {
 
 	// creating the missile
 	if (keys->space == true && state->info.missile == NULL)  {
-		state->info.missile = create_object(MISSLE, state->info.jet->rect.x + 15,  state->info.jet->rect.y, 5, 40/2);
+		state->info.missile = create_object(MISSLE, state->info.jet->rect.x + 15,  state->info.jet->rect.y - 40/2, 5, 40/2);
 	}
 
 	// if there is a missile
 	if (state->info.missile != NULL)  {
 
+		// if missile is a screen higher than then missile it gets destroyed
+		if (state->info.missile->rect.y > state->info.jet->rect.y + SCREEN_HEIGHT)  {
+			state->info.missile = NULL;
+		}
+
 		// missile movement
-		state->info.missile->rect.y -= 10;
+		state->info.missile->rect.y -= 10*state->speed_factor;
 
 		// missile collisions
-		ListNode previous_node;  //used to store the previous node later
+		ListNode previous_node = list_first(state->objects);  //used to store the previous node later
 		for(ListNode node = list_first(state->objects);
 			node != LIST_EOF;
 			node = list_next(state->objects, node)) {
@@ -285,37 +284,27 @@ void state_update(State state, KeyState keys) {
 			Object temp_object = list_node_value(state->objects, node);
 
 			// missile collision with the terain
-			Object temp_terain;
+			
 			if (temp_object->type == TERAIN)  {
-				temp_terain = temp_object;
-			}
-			if (CheckCollisionRecs(temp_terain->rect, state->info.missile->rect) == true)  {
+				if (CheckCollisionRecs(temp_object->rect, state->info.missile->rect) == true)  {
 				state->info.missile = NULL;
 				return;
+				}
 			}
+			
+			
 
 			// missile collision with a helicopter, warship or a bridge
-			Object temp_object2;
 			if (temp_object->type == HELICOPTER ||
 				temp_object->type == WARSHIP ||
 				temp_object->type == BRIDGE)  {
 
-				temp_object2 = temp_object;
-
-				
-				if (CheckCollisionRecs(temp_object2->rect, state->info.missile->rect) == true)  {
-					state->info.missile = NULL;
-
-					// Object previous_object = list_node_value(state->objects, previous_node);
-					// if (previous_object->type == HELICOPTER ||
-					// 	previous_object->type == WARSHIP ||
-					// 	previous_object->type == BRIDGE )  {
-					// 	printf("it's the real previous\n");
-					// }
-
-
+				if (CheckCollisionRecs(temp_object->rect, state->info.missile->rect) == true)  {
+					
 					list_remove_next(state->objects, previous_node);
+					state->info.missile = NULL;
 					state->info.score += 10;
+					return;
 				}
 			}
 			previous_node = node;
@@ -328,15 +317,15 @@ void state_update(State state, KeyState keys) {
 	//making the track "infinite"
 	int count_bridges = 0;
 	
-	for(ListNode node = list_first(list);
+	for(ListNode node = list_first(state->objects);
 		node != LIST_EOF;
-		node = list_next(list, node)) {
+		node = list_next(state->objects, node)) {
 
-		Object temp_object = list_node_value(list, node);
+		Object temp_object = list_node_value(state->objects, node);
 		if (temp_object->type == BRIDGE)  {
 			count_bridges++;
 		}
-		temp_object = list_node_value(list, node);
+		temp_object = list_node_value(state->objects, node);
 		if (count_bridges == x*BRIDGE_NUM - 1)  {
 			if (state->info.jet->rect.y - SCREEN_HEIGHT == temp_object->rect.y)  {
 				add_objects(state, temp_object->rect.y);

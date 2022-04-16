@@ -1,5 +1,6 @@
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "ADTList.h"
 #include "ADTSet.h"
@@ -158,23 +159,19 @@ StateInfo state_info(State state) {
 List state_objects(State state, float y_from, float y_to) {
 	List list = list_create(NULL);
 
-
 	Object obj1 = malloc(sizeof(*obj1));
 	obj1->rect.y = y_from;
 	Object first = set_find_eq_or_greater(state->objects, obj1);
 
 	Object obj2 = malloc(sizeof(*obj2));
 	obj2->rect.y = y_to;
-	Object last = set_find_eq_or_greater(state->objects, obj2);
+	Object last = set_find_eq_or_smaller(state->objects, obj2);
 
+	for(SetNode node = set_find_node(state->objects, first);
+		node != set_find_node(state->objects, last);
+		node = set_next(state->objects, node)) {
 
-	ListNode list_node = LIST_BOF;
-	SetNode set_node = set_find_node(state->objects, first);
-	for (Pointer value = first ; value == last ; value = set_node_value(state->objects, set_node))  {
-		
-		list_node = list_next(list, list_node);
-		list_insert_next(list, list_node, set_node_value(state->objects, set_node));
-		SetNode set_node = set_next(state->objects, set_node);
+			list_insert_next(list, LIST_BOF, set_node_value(state->objects, node));
 	}
 	return list;
 }
@@ -182,6 +179,7 @@ List state_objects(State state, float y_from, float y_to) {
 // Ενημερώνει την κατάσταση state του παιχνιδιού μετά την πάροδο 1 frame.
 // Το keys περιέχει τα πλήκτρα τα οποία ήταν πατημένα κατά το frame αυτό.
 
+static int x=1;
 void state_update(State state, KeyState keys) {
 	
 	// jet movement
@@ -192,22 +190,25 @@ void state_update(State state, KeyState keys) {
 	else if (keys->down == true)  {
 		state->info.jet->rect.y -= 2*state->speed_factor;
 	}
-	else if (keys->right == true)  {
+	else  {
+		state->info.jet->rect.y -= 3*state->speed_factor; 
+	}
+
+	if (keys->right == true)  {
 		state->info.jet->rect.x += 3*state->speed_factor;
-		state->info.jet->rect.y -= 3*state->speed_factor;
 	}
 	else if (keys->left == true)  {
 		state->info.jet->rect.x -= 3*state->speed_factor;
-		state->info.jet->rect.y -= 3*state->speed_factor;
-	}
-	else  {
-		state->info.jet->rect.y -= 3*state->speed_factor;
 	}
 	
 
 	// enemy movement
 
-	List list = state_objects(state, state->info.jet->rect.y + 800, state->info.jet->rect.y - 800);
+	//state y offset
+    int state_y_offset = -state->info.jet->rect.y;
+
+	List list = state_objects(state, -state_y_offset  + SCREEN_HEIGHT, - state_y_offset - 2*SCREEN_HEIGHT);
+	//static float x_coords;
 	for(ListNode node = list_first(list);
 		node != LIST_EOF;
 		node = list_next(list, node)) {
@@ -217,7 +218,7 @@ void state_update(State state, KeyState keys) {
 			if (temp_object->forward == true)  {
 				temp_object->rect.x += 4*state->speed_factor;
 			}
-			else  {
+			else if (temp_object->forward == false)  {
 				temp_object->rect.x -= 4*state->speed_factor;
 			}
 		}
@@ -225,20 +226,14 @@ void state_update(State state, KeyState keys) {
 			if (temp_object->forward == true)  {
 				temp_object->rect.x += 3*state->speed_factor;
 			}
-			else  {
+			else if (temp_object->forward == false)  {
 				temp_object->rect.x -= 3*state->speed_factor;
 			}
 		}
-	}
 
 
-	// collisions
 
-	for(ListNode node = list_first(list);
-		node != LIST_EOF;
-		node = list_next(list, node)) {
-
-		Object temp_object = list_node_value(list, node);
+		// collisions
 		if (temp_object->type == HELICOPTER ||
 			temp_object->type == WARSHIP ||
 			temp_object->type == TERAIN ||
@@ -246,13 +241,13 @@ void state_update(State state, KeyState keys) {
 
 			if (CheckCollisionRecs(state->info.jet->rect, temp_object->rect) == true)  {
 				state->info.playing = false;
+				return;
 			}
 		}
-
-		Object terain1;
-		Object terain2;
-		float x_left;
-		float x_right;
+		Object terain1 = NULL;
+		Object terain2 = NULL;
+		static float x_left;
+		static float x_right;
 		if (temp_object->type == TERAIN && terain1 == NULL)  {
 			terain1 = temp_object;
 			x_left = terain1->rect.x;
@@ -260,16 +255,42 @@ void state_update(State state, KeyState keys) {
 		else if (temp_object->type == TERAIN && terain2 == NULL)  {
 			terain2 = temp_object;
 			x_right = terain1->rect.x;
-			terain1 = NULL;
-			terain2 = NULL;
 		}
 		if (temp_object->type == HELICOPTER ||
 			temp_object->type == WARSHIP)  {
 
 			if (temp_object->rect.x == x_left || temp_object->rect.x == x_right)  {
-				temp_object->forward = - temp_object->forward;
+				//temp_object->forward = - temp_object->forward;
+				if (temp_object->forward == true)  {
+					temp_object->forward = false;
+				}
+				else if (temp_object->forward == false)  {
+					temp_object->forward = true;
+				}
+				terain1 = NULL;
+				terain2 = NULL;
+				continue;
 			}
 		}
+
+		
+		// if (temp_object->type == TERAIN)  {
+		// 	x_coords = temp_object->rect.x;
+		// 	continue;
+		// }
+		// if (temp_object->type == HELICOPTER ||
+		// 	temp_object->type == WARSHIP)  {
+
+		// 	if (temp_object->rect.x == x_coords)  {
+		// 		if (temp_object->forward == true)  {
+		// 			temp_object->forward = false;
+		// 		}
+		// 		else if (temp_object->forward == false)  {
+		// 			temp_object->forward = true;
+		// 		}
+		// 		continue;
+		// 	}
+		// }
 	}
 
 
@@ -277,9 +298,19 @@ void state_update(State state, KeyState keys) {
 
 	if (state->info.playing == false && keys->enter == true)  {
 		state->info.playing = true;
+		return;
 	}
-	if (state->info.paused == true && keys->n == true)  {
-		state_update(state, keys);
+
+	if (keys->p == true && state->info.paused == false)  {
+		state->info.paused = true;
+		return;
+	}
+	else if (keys->p == true && state->info.paused == true)  {
+		state->info.paused = false;
+		return;
+	}
+	else if (keys->n == true && state->info.paused == true)  {
+		return;
 	}
 
 
@@ -287,21 +318,25 @@ void state_update(State state, KeyState keys) {
 
 	// creating the missile
 	if (keys->space == true && state->info.missile == NULL)  {
-		state->info.missile = create_object(MISSLE, (SCREEN_WIDTH - 35)/2,  40, 35, 40);
+		state->info.missile = create_object(MISSLE, state->info.jet->rect.x + 15,  state->info.jet->rect.y, 5, 40/2);
 	}
 
 	// if there is a missile
 	if (state->info.missile != NULL)  {
 
+		if (state->info.missile->rect.y > state->info.jet->rect.y + SCREEN_HEIGHT)  {
+			state->info.missile = NULL;
+		}
+
 		// misile movement
 		state->info.missile->rect.y -= 10;
 
 		// misile collisions
-		for(ListNode node = list_first(list);
-			node != LIST_EOF;
-			node = list_next(list, node)) {
+		for(SetNode node = set_first(state->objects);
+			node != SET_EOF;
+			node = set_next(state->objects, node)) {
 
-			Object temp_object = list_node_value(list, node);
+			Object temp_object = set_node_value(state->objects, node);
 
 			// misile collision with the terain
 			Object temp_terain;
@@ -310,6 +345,7 @@ void state_update(State state, KeyState keys) {
 			}
 			if (CheckCollisionRecs(temp_terain->rect, state->info.missile->rect) == true)  {
 				state->info.missile = NULL;
+				return;
 			}
 
 			// misile collision with a helicopter, warship or a bridge
@@ -319,20 +355,22 @@ void state_update(State state, KeyState keys) {
 				temp_object->type == BRIDGE)  {
 
 				temp_object2 = temp_object;
+
+				if (CheckCollisionRecs(temp_object2->rect, state->info.missile->rect) == true)  {
+					state->info.missile = NULL;
+
+					set_remove(state->objects, set_node_value(state->objects, node));
+					state->info.score += 10;
+					return;
+				}
 			}
-			ListNode previous_node;
-			if (CheckCollisionRecs(temp_object2->rect, state->info.missile->rect) == true)  {
-				state->info.missile = NULL;
-				list_remove_next(list, previous_node);
-				state->info.score += 10;
-			}
-			previous_node = node;
 		}
 	}
 	
 
 	//making the track "infinite"
 	int count_bridges = 0;
+	
 	for(ListNode node = list_first(list);
 		node != LIST_EOF;
 		node = list_next(list, node)) {
@@ -342,9 +380,10 @@ void state_update(State state, KeyState keys) {
 			count_bridges++;
 		}
 		temp_object = list_node_value(list, node);
-		if (count_bridges == BRIDGE_NUM - 1)  {
-			if (state->info.jet->rect.y == temp_object->rect.y + 800)  {
+		if (count_bridges == x*BRIDGE_NUM - 1)  {
+			if (state->info.jet->rect.y - SCREEN_HEIGHT == temp_object->rect.y)  {
 				add_objects(state, temp_object->rect.y);
+				x++;
 				state->speed_factor += state->speed_factor*0.3;
 			}
 		}

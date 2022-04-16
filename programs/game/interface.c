@@ -60,14 +60,11 @@ void interface_draw_frame(State state)  {
     Camera2D camera = { 0 };
     camera.target = (Vector2){ (SCREEN_WIDTH - 35)/2, info->jet->rect.y};
     camera.offset = (Vector2){ (SCREEN_WIDTH - 35)/2, y_offset+700 };
-    camera.rotation = 0.0f;
     camera.zoom = 1.0f;
-
-    camera.target = (Vector2){ (SCREEN_WIDTH - 35)/2, info->jet->rect.y };
 
     BeginDrawing();
     ClearBackground(RAYWHITE);
-    BeginMode2D(camera);
+    BeginMode2D(camera);  
     
     
     // Σχεδιάζουμε το μπλε background
@@ -80,7 +77,7 @@ void interface_draw_frame(State state)  {
     if (info->missile != NULL)  {
         
         Rectangle missile_rect = info->missile->rect;
-        missile_rect.y -= y_offset + 40/2;
+        missile_rect.y -= y_offset;
         DrawRectangleRec(missile_rect, WHITE);
     }
 
@@ -95,8 +92,6 @@ void interface_draw_frame(State state)  {
         node = list_next(objects1, node))  {
             
         Object obj = list_node_value(objects1, node);
-        //printf(" x cord = %f ||| y cord = %f\n", obj->rect.x, obj->rect.y);
-        //DrawCircle(obj->rect.x, obj->rect.y - y_offset, 32, PURPLE);
 
         if (obj->type == TERAIN)  {
             Object temp_obj = create_object(TERAIN, obj->rect.x, 

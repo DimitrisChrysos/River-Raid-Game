@@ -5,9 +5,6 @@
 #include "state.h"
 
 State state;
-State first_state;
-
-int x=0;
 
 void update_and_draw() {
     struct key_state keys = {
@@ -26,7 +23,6 @@ void update_and_draw() {
     //for every occasion
     if (info->playing == false)  {
         if (keys.enter == true)  {
-            //state = NULL;
             state = state_create();
             state_update(state, &keys);
             interface_draw_frame(state);
@@ -60,9 +56,6 @@ void update_and_draw() {
 int main() {
 	state = state_create();
 	interface_init();
-
-    //saving the starting state
-    first_state = state;
     
 
 	// Η κλήση αυτή καλεί συνεχόμενα την update_and_draw μέχρι ο χρήστης να κλείσει το παράθυρο
