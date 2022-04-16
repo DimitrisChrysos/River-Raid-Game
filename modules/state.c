@@ -72,6 +72,7 @@ static void add_objects(State state, float start_y) {
 			4*SPACING						// Υψος καλύπτει το χώρο ανάμεσα σε 2 γέφυρες
 		);
 		int width = rand() % (SCREEN_WIDTH/2);
+		width = width*0.5;
 		Object terain_right = create_object(
 			TERAIN,
 			SCREEN_WIDTH - width,			// Δεξί έδαφος, x = <οθόνη> - <πλάτος εδάφους>
@@ -268,8 +269,9 @@ void state_update(State state, KeyState keys) {
 	if (state->info.missile != NULL)  {
 
 		// if missile is a screen higher than then missile it gets destroyed
-		if (state->info.missile->rect.y > state->info.jet->rect.y + SCREEN_HEIGHT)  {
+		if (state->info.missile->rect.y < state->info.jet->rect.y - SCREEN_HEIGHT)  {
 			state->info.missile = NULL;
+			return;
 		}
 
 		// missile movement

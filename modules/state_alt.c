@@ -75,6 +75,7 @@ static void add_objects(State state, float start_y) {
 			4*SPACING						// Υψος καλύπτει το χώρο ανάμεσα σε 2 γέφυρες
 		);
 		int width = rand() % (SCREEN_WIDTH/2);
+		width = width*0.5;
 		Object terain_right = create_object(
 			TERAIN,
 			SCREEN_WIDTH - width,			// Δεξί έδαφος, x = <οθόνη> - <πλάτος εδάφους>
@@ -208,7 +209,6 @@ void state_update(State state, KeyState keys) {
     int state_y_offset = -state->info.jet->rect.y;
 
 	List list = state_objects(state, -state_y_offset  + SCREEN_HEIGHT, - state_y_offset - 2*SCREEN_HEIGHT);
-	//static float x_coords;
 	for(ListNode node = list_first(list);
 		node != LIST_EOF;
 		node = list_next(list, node)) {
@@ -230,6 +230,7 @@ void state_update(State state, KeyState keys) {
 				temp_object->rect.x -= 3*state->speed_factor;
 			}
 		}
+	
 
 
 
@@ -244,53 +245,47 @@ void state_update(State state, KeyState keys) {
 				return;
 			}
 		}
-		Object terain1 = NULL;
-		Object terain2 = NULL;
-		static float x_left;
-		static float x_right;
-		if (temp_object->type == TERAIN && terain1 == NULL)  {
-			terain1 = temp_object;
-			x_left = terain1->rect.x;
-		}
-		else if (temp_object->type == TERAIN && terain2 == NULL)  {
-			terain2 = temp_object;
-			x_right = terain1->rect.x;
-		}
-		if (temp_object->type == HELICOPTER ||
-			temp_object->type == WARSHIP)  {
-
-			if (temp_object->rect.x == x_left || temp_object->rect.x == x_right)  {
-				//temp_object->forward = - temp_object->forward;
-				if (temp_object->forward == true)  {
-					temp_object->forward = false;
-				}
-				else if (temp_object->forward == false)  {
-					temp_object->forward = true;
-				}
-				terain1 = NULL;
-				terain2 = NULL;
-				continue;
-			}
-		}
-
-		
+		// static float x_left;
+		// static float x_right;
 		// if (temp_object->type == TERAIN)  {
-		// 	x_coords = temp_object->rect.x;
+		// 	x_left = temp_object->rect.x;
+		// 	ListNode for_right_x = list_next(list, node);
+		// 	Object for_right_x_terain = list_node_value(list, for_right_x);
+		// 	x_right = for_right_x_terain->rect.x;
 		// 	continue;
 		// }
 		// if (temp_object->type == HELICOPTER ||
 		// 	temp_object->type == WARSHIP)  {
 
-		// 	if (temp_object->rect.x == x_coords)  {
+		// 	if (temp_object->rect.x == x_left || temp_object->rect.x == x_right)  {
 		// 		if (temp_object->forward == true)  {
 		// 			temp_object->forward = false;
 		// 		}
 		// 		else if (temp_object->forward == false)  {
 		// 			temp_object->forward = true;
 		// 		}
-		// 		continue;
 		// 	}
 		// }
+		if (temp_object->type == HELICOPTER ||
+			temp_object->type == WARSHIP)  {
+
+			for(SetNode node = set_first(state->objects);
+				node != SET_EOF;
+				node = set_next(state->objects, node)) {
+
+				Object temp_terain = set_node_value(state->objects, node);
+				if (temp_terain->type == TERAIN)  {
+					if (CheckCollisionRecs(temp_object->rect, temp_terain->rect) == true)  {
+						if (temp_object->forward == true)  {
+							temp_object->forward = false;
+						}
+						else if (temp_object->forward == false)  {
+							temp_object->forward = true;
+						}
+					}
+				}
+			}
+		}
 	}
 
 
@@ -318,18 +313,20 @@ void state_update(State state, KeyState keys) {
 
 	// creating the missile
 	if (keys->space == true && state->info.missile == NULL)  {
-		state->info.missile = create_object(MISSLE, state->info.jet->rect.x + 15,  state->info.jet->rect.y, 5, 40/2);
+		state->info.missile = create_object(MISSLE, state->info.jet->rect.x + 15,  state->info.jet->rect.y - 40/2, 5, 40/2);
 	}
 
 	// if there is a missile
 	if (state->info.missile != NULL)  {
-
-		if (state->info.missile->rect.y > state->info.jet->rect.y + SCREEN_HEIGHT)  {
+		
+		// if missile is a screen higher than then missile it gets destroyed
+		if (state->info.missile->rect.y < state->info.jet->rect.y - SCREEN_HEIGHT)  {
 			state->info.missile = NULL;
+			return;
 		}
 
 		// misile movement
-		state->info.missile->rect.y -= 10;
+		state->info.missile->rect.y -= 10*state->speed_factor;
 
 		// misile collisions
 		for(SetNode node = set_first(state->objects);
@@ -339,27 +336,22 @@ void state_update(State state, KeyState keys) {
 			Object temp_object = set_node_value(state->objects, node);
 
 			// misile collision with the terain
-			Object temp_terain;
 			if (temp_object->type == TERAIN)  {
-				temp_terain = temp_object;
-			}
-			if (CheckCollisionRecs(temp_terain->rect, state->info.missile->rect) == true)  {
+				if (CheckCollisionRecs(temp_object->rect, state->info.missile->rect) == true)  {
 				state->info.missile = NULL;
 				return;
+				}
 			}
 
 			// misile collision with a helicopter, warship or a bridge
-			Object temp_object2;
 			if (temp_object->type == HELICOPTER ||
 				temp_object->type == WARSHIP ||
 				temp_object->type == BRIDGE)  {
 
-				temp_object2 = temp_object;
-
-				if (CheckCollisionRecs(temp_object2->rect, state->info.missile->rect) == true)  {
-					state->info.missile = NULL;
+				if (CheckCollisionRecs(temp_object->rect, state->info.missile->rect) == true)  {
 
 					set_remove(state->objects, set_node_value(state->objects, node));
+					state->info.missile = NULL;
 					state->info.score += 10;
 					return;
 				}
