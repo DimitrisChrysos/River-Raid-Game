@@ -180,7 +180,7 @@ List state_objects(State state, float y_from, float y_to) {
 // Ενημερώνει την κατάσταση state του παιχνιδιού μετά την πάροδο 1 frame.
 // Το keys περιέχει τα πλήκτρα τα οποία ήταν πατημένα κατά το frame αυτό.
 
-static int x=1;
+//static int x=1;
 void state_update(State state, KeyState keys) {
 	
 	// jet movement
@@ -363,21 +363,24 @@ void state_update(State state, KeyState keys) {
 	//making the track "infinite"
 	int count_bridges = 0;
 	
-	for(ListNode node = list_first(list);
-		node != LIST_EOF;
-		node = list_next(list, node)) {
+	
+	Object last_bridge;
+	for(SetNode node = set_first(state->objects);
+		node != SET_EOF;
+		node = set_next(state->objects, node)) {
 
-		Object temp_object = list_node_value(list, node);
+		Object temp_object = set_node_value(state->objects, node);
 		if (temp_object->type == BRIDGE)  {
 			count_bridges++;
-		}
-		temp_object = list_node_value(list, node);
-		if (count_bridges == x*BRIDGE_NUM)  {
-			if (state->info.jet->rect.y - SCREEN_HEIGHT <= temp_object->rect.y)  {
-				add_objects(state, temp_object->rect.y);
-				x++;
-				state->speed_factor += state->speed_factor*0.3;
+			if (count_bridges == 1)  {
+				last_bridge = temp_object;
 			}
+		}
+	}
+	if (count_bridges == 1)  {
+		if (state->info.jet->rect.y <= last_bridge->rect.y + SCREEN_HEIGHT)  {
+			add_objects(state, last_bridge->rect.y);
+			state->speed_factor += state->speed_factor*0.3;
 		}
 	}
 }
