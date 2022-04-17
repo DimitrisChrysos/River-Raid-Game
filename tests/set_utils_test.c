@@ -7,6 +7,7 @@
 #include "acutest.h"			// Απλή βιβλιοθήκη για unit testing
 
 #include "set_utils.h"
+#include "ADTSet.h"
 
 int* create_int(int value) {
     int* pointer = malloc(sizeof(int)); // δέσμευση μνήμης

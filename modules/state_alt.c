@@ -245,47 +245,47 @@ void state_update(State state, KeyState keys) {
 				return;
 			}
 		}
-		// static float x_left;
-		// static float x_right;
-		// if (temp_object->type == TERAIN)  {
-		// 	x_left = temp_object->rect.x;
-		// 	ListNode for_right_x = list_next(list, node);
-		// 	Object for_right_x_terain = list_node_value(list, for_right_x);
-		// 	x_right = for_right_x_terain->rect.x;
-		// 	continue;
-		// }
-		// if (temp_object->type == HELICOPTER ||
-		// 	temp_object->type == WARSHIP)  {
-
-		// 	if (temp_object->rect.x == x_left || temp_object->rect.x == x_right)  {
-		// 		if (temp_object->forward == true)  {
-		// 			temp_object->forward = false;
-		// 		}
-		// 		else if (temp_object->forward == false)  {
-		// 			temp_object->forward = true;
-		// 		}
-		// 	}
-		// }
+		static float x_left;
+		static float x_right;
+		if (temp_object->type == TERAIN)  {
+			x_left = temp_object->rect.x;
+			ListNode for_right_x = list_next(list, node);
+			Object for_right_x_terain = list_node_value(list, for_right_x);
+			x_right = for_right_x_terain->rect.x;
+			continue;
+		}
 		if (temp_object->type == HELICOPTER ||
 			temp_object->type == WARSHIP)  {
 
-			for(SetNode node = set_first(state->objects);
-				node != SET_EOF;
-				node = set_next(state->objects, node)) {
-
-				Object temp_terain = set_node_value(state->objects, node);
-				if (temp_terain->type == TERAIN)  {
-					if (CheckCollisionRecs(temp_object->rect, temp_terain->rect) == true)  {
-						if (temp_object->forward == true)  {
-							temp_object->forward = false;
-						}
-						else if (temp_object->forward == false)  {
-							temp_object->forward = true;
-						}
-					}
+			if (temp_object->rect.x == x_left || temp_object->rect.x == x_right)  {
+				if (temp_object->forward == true)  {
+					temp_object->forward = false;
+				}
+				else if (temp_object->forward == false)  {
+					temp_object->forward = true;
 				}
 			}
 		}
+		// if (temp_object->type == HELICOPTER ||
+		// 	temp_object->type == WARSHIP)  {
+
+		// 	for(SetNode node = set_first(state->objects);
+		// 		node != SET_EOF;
+		// 		node = set_next(state->objects, node)) {
+
+		// 		Object temp_terain = set_node_value(state->objects, node);
+		// 		if (temp_terain->type == TERAIN)  {
+		// 			if (CheckCollisionRecs(temp_object->rect, temp_terain->rect) == true)  {
+		// 				if (temp_object->forward == true)  {
+		// 					temp_object->forward = false;
+		// 				}
+		// 				else if (temp_object->forward == false)  {
+		// 					temp_object->forward = true;
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
 	}
 
 
@@ -372,8 +372,8 @@ void state_update(State state, KeyState keys) {
 			count_bridges++;
 		}
 		temp_object = list_node_value(list, node);
-		if (count_bridges == x*BRIDGE_NUM - 1)  {
-			if (state->info.jet->rect.y - SCREEN_HEIGHT == temp_object->rect.y)  {
+		if (count_bridges == x*BRIDGE_NUM)  {
+			if (state->info.jet->rect.y - SCREEN_HEIGHT <= temp_object->rect.y)  {
 				add_objects(state, temp_object->rect.y);
 				x++;
 				state->speed_factor += state->speed_factor*0.3;

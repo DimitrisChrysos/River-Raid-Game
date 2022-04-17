@@ -326,14 +326,14 @@ void state_update(State state, KeyState keys) {
 		Object temp_object = list_node_value(state->objects, node);
 		if (temp_object->type == BRIDGE)  {
 			count_bridges++;
-		}
-		temp_object = list_node_value(state->objects, node);
-		if (count_bridges == x*BRIDGE_NUM - 1)  {
-			if (state->info.jet->rect.y - SCREEN_HEIGHT == temp_object->rect.y)  {
-				add_objects(state, temp_object->rect.y);
-				x++;
-				state->speed_factor += state->speed_factor*0.3;
+			if (count_bridges == x*BRIDGE_NUM)  {
+				if (state->info.jet->rect.y <= temp_object->rect.y + SCREEN_HEIGHT)  {
+					add_objects(state, temp_object->rect.y);
+					x++;
+					state->speed_factor += state->speed_factor*0.3;
+				}
 			}
+			else continue;
 		}
 	}
 }
