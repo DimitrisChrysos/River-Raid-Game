@@ -56,7 +56,6 @@ void update_and_draw() {
 int main() {
 	state = state_create();
 	interface_init();
-    
 
 	// Η κλήση αυτή καλεί συνεχόμενα την update_and_draw μέχρι ο χρήστης να κλείσει το παράθυρο
 	start_main_loop(update_and_draw);

@@ -180,7 +180,6 @@ List state_objects(State state, float y_from, float y_to) {
 // Ενημερώνει την κατάσταση state του παιχνιδιού μετά την πάροδο 1 frame.
 // Το keys περιέχει τα πλήκτρα τα οποία ήταν πατημένα κατά το frame αυτό.
 
-//static int x=1;
 void state_update(State state, KeyState keys) {
 	
 	// jet movement
@@ -235,6 +234,9 @@ void state_update(State state, KeyState keys) {
 
 
 		// collisions
+
+
+
 		if (temp_object->type == HELICOPTER ||
 			temp_object->type == WARSHIP ||
 			temp_object->type == TERAIN ||
@@ -245,19 +247,32 @@ void state_update(State state, KeyState keys) {
 				return;
 			}
 		}
+
+		Object terrain_left;
+		Object terrain_right;
 		static float x_left;
 		static float x_right;
-		if (temp_object->type == TERAIN)  {
-			x_left = temp_object->rect.x;
-			ListNode for_right_x = list_next(list, node);
-			Object for_right_x_terain = list_node_value(list, for_right_x);
-			x_right = for_right_x_terain->rect.x;
-			continue;
-		}
-		if (temp_object->type == HELICOPTER ||
-			temp_object->type == WARSHIP)  {
+		static float width_left;
+		
+		if (temp_object->type == TERAIN && temp_object->rect.x == 0)  {
+			
+			terrain_left = temp_object;
+			set_remove(state->objects, temp_object);
+			terrain_right = set_find_eq_or_smaller(state->objects,  temp_object);
+			set_insert(state->objects, temp_object);
 
-			if (temp_object->rect.x == x_left || temp_object->rect.x == x_right)  {
+			if (terrain_right->type == TERAIN)  {
+				x_left = terrain_left->rect.x;
+				width_left = terrain_left->rect.width;
+
+				x_right = terrain_right->rect.x;
+				continue;
+			}
+		}
+
+		if (temp_object->type == HELICOPTER)  {
+
+			if (temp_object->rect.x + 66 >= x_right || temp_object->rect.x <= x_left + width_left)  {
 				if (temp_object->forward == true)  {
 					temp_object->forward = false;
 				}
@@ -266,6 +281,69 @@ void state_update(State state, KeyState keys) {
 				}
 			}
 		}
+		else if (temp_object->type == WARSHIP)  {
+
+			if (temp_object->rect.x + 83 >= x_right || temp_object->rect.x <= x_left + width_left)  {
+				if (temp_object->forward == true)  {
+					temp_object->forward = false;
+				}
+				else if (temp_object->forward == false)  {
+					temp_object->forward = true;
+				}
+			}
+		}
+
+
+
+
+
+
+	// for testttttttttttt
+		// SetNode node = set_first(state->objects);
+		// for (int i=0 ; i < set_size(state->objects) ; i++)  {
+		// 	Object temp_object = set_node_value(state->objects, node);
+		// 	if (temp_object->type == TERAIN)
+		// 		printf("yes, %d\n", i);
+		// 	else
+		// 		printf("no, %d\n", i);
+		// 	node = set_next(state->objects, node);
+			
+		// }
+		
+		
+
+		// if (temp_object->type == HELICOPTER ||
+		// 	temp_object->type == WARSHIP ||
+		// 	temp_object->type == TERAIN ||
+		// 	temp_object->type == BRIDGE)  {
+
+		// 	if (CheckCollisionRecs(state->info.jet->rect, temp_object->rect) == true)  {
+		// 		state->info.playing = false;
+		// 		return;
+		// 	}
+		// }
+		// static float x_left;
+		// static float x_right;
+		// if (temp_object->type == TERAIN)  {
+		// 	x_left = temp_object->rect.x;
+		// 	ListNode for_right_x = list_next(list, node);
+		// 	Object for_right_x_terain = list_node_value(list, for_right_x);
+		// 	x_right = for_right_x_terain->rect.x;
+		// 	continue;
+		// }
+		// if (temp_object->type == HELICOPTER ||
+		// 	temp_object->type == WARSHIP)  {
+
+		// 	if (temp_object->rect.x == x_left || temp_object->rect.x == x_right)  {
+		// 		if (temp_object->forward == true)  {
+		// 			temp_object->forward = false;
+		// 		}
+		// 		else if (temp_object->forward == false)  {
+		// 			temp_object->forward = true;
+		// 		}
+		// 	}
+		// }
+
 		// if (temp_object->type == HELICOPTER ||
 		// 	temp_object->type == WARSHIP)  {
 

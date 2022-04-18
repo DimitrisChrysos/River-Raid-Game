@@ -15,6 +15,9 @@ Texture helicopter_img2;
 Texture warship_img;
 Texture warship_img2;
 Sound game_over_snd;
+Sound music;
+
+
 
 // Αρχικοποιεί το interface του παιχνιδιού
 void interface_init()  {
@@ -30,6 +33,7 @@ void interface_init()  {
     warship_img2 = LoadTextureFromImage(LoadImage("assets/warship_img2.png"));
 
     game_over_snd = LoadSound("assets/game_over.mp3");
+    music = LoadSound("assets/soundtrack.mp3");
 }
 
 // Κλείνει το interface του παιχνιδιού
@@ -49,11 +53,41 @@ static Object create_object(ObjectType type, float x, float y, float width, floa
 }
 
 // Σχεδιάζει ένα frame με την τωρινή κατάσταση του παιχνδιού
+bool playing_music = false;
+bool music_was_paused = false;
+
 void interface_draw_frame(State state)  {
     
-
     StateInfo info = state_info(state);
 
+    // Ηχος παιχνιδίου;
+    if (playing_music == false && music_was_paused == false)  {
+		PlaySound(music);
+        playing_music = true;
+    }
+
+    if (playing_music == false && music_was_paused == true)  {
+        ResumeSound(music);
+        playing_music = true;
+    }
+
+    if (IsSoundPlaying(music) == false && info->playing == true)  {
+        PlaySound(music);
+    }
+
+    if (info->playing == false)  {
+        StopSound(music);
+        playing_music = false;
+    }
+
+    if (info->paused == true)  {
+        PauseSound(music);
+        playing_music = false;
+        music_was_paused = true;
+    }
+    
+    // Σχεδίαση παιχνιδιού
+    
     // state -> screen:    αφαιρώ τα offsets
     // screen -> state:     προσθέτω τα offsets
     int y_offset = - (SCREEN_HEIGHT - 100);
@@ -147,11 +181,13 @@ void interface_draw_frame(State state)  {
 			 info->jet->rect.y - y_offset - SCREEN_HEIGHT/2, 20, GRAY
 		);
 	}
+    
 
+    
 
 
 	// Ηχος, αν είμαστε στο frame που συνέβη το game_over
-	if(!info->playing == false)
+	if (!info->playing == false)
 		PlaySound(game_over_snd);
 
     EndDrawing();
