@@ -26,11 +26,11 @@ void interface_init()  {
     InitAudioDevice();
 
     // Φόρτωση εικόνων και ήχων
-	jet_img = LoadTextureFromImage(LoadImage("assets/jet_img.png"));
-    helicopter_img = LoadTextureFromImage(LoadImage("assets/helicopter_img.png"));
-    helicopter_img2 = LoadTextureFromImage(LoadImage("assets/helicopter_img2.png"));
-    warship_img = LoadTextureFromImage(LoadImage("assets/warship_img.png"));
-    warship_img2 = LoadTextureFromImage(LoadImage("assets/warship_img2.png"));
+	jet_img = LoadTextureFromImage(LoadImage("assets/jet(1).png"));
+    helicopter_img = LoadTextureFromImage(LoadImage("assets/heli_right.png"));
+    helicopter_img2 = LoadTextureFromImage(LoadImage("assets/heli_left.png"));
+    warship_img = LoadTextureFromImage(LoadImage("assets/warship_right.png"));
+    warship_img2 = LoadTextureFromImage(LoadImage("assets/warship_left.png"));
 
     game_over_snd = LoadSound("assets/game_over.mp3");
     music = LoadSound("assets/soundtrack.mp3");
@@ -134,18 +134,18 @@ void interface_draw_frame(State state)  {
         }
         if (obj->type == HELICOPTER)  {
             if (obj->forward == true)  {
-                DrawTexture(helicopter_img, obj->rect.x, obj->rect.y - y_offset, YELLOW);
+                DrawTexture(helicopter_img, obj->rect.x, obj->rect.y - y_offset, WHITE);
             }
             if (obj->forward == false)  {
-                DrawTexture(helicopter_img2, obj->rect.x, obj->rect.y - y_offset, YELLOW);
+                DrawTexture(helicopter_img2, obj->rect.x, obj->rect.y - y_offset, WHITE);
             }
         }
         if (obj->type == WARSHIP)  {
             if (obj->forward == true)  {
-                DrawTexture(warship_img, obj->rect.x, obj->rect.y - y_offset, RED);
+                DrawTexture(warship_img, obj->rect.x, obj->rect.y - y_offset, WHITE);
             }
             else if (obj->forward == false)  {
-                DrawTexture(warship_img2, obj->rect.x, obj->rect.y - y_offset, RED);
+                DrawTexture(warship_img2, obj->rect.x, obj->rect.y - y_offset, WHITE);
             }
         }
         if (obj->type == BRIDGE)  {
