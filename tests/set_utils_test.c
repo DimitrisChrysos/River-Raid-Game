@@ -40,7 +40,7 @@ void test_set_find_eq_or_greater() {
     Pointer int_16 = set_find(set, create_int(16));
     TEST_ASSERT(value == int_16);
 
-    // test αν άδιο set
+    // test αν άδειο set
     set = set_create(compare_ints, free);
     value = set_find_eq_or_greater(set, int_15);
     TEST_ASSERT(value == NULL);

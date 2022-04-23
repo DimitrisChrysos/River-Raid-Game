@@ -216,7 +216,7 @@ void state_update(State state, KeyState keys) {
     int state_y_offset = state->info.jet->rect.y;
 
 	List list = state_objects(state, state_y_offset + 2*SCREEN_HEIGHT, state_y_offset - 2*SCREEN_HEIGHT);
-	for(ListNode node = list_first(list);
+	for (ListNode node = list_first(list);
 		node != LIST_EOF;
 		node = list_next(list, node)) {
 
@@ -382,7 +382,7 @@ void state_update(State state, KeyState keys) {
 	}
 	
 
-	// //making the track "infinite"
+	//making the track "infinite"
 	if (total_bridges == 0 && last_bridge != NULL)  {
 		if (state->info.jet->rect.y <= last_bridge->rect.y + SCREEN_HEIGHT)  {
 			add_objects(state, last_bridge->rect.y - SCREEN_HEIGHT);

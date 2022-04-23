@@ -20,14 +20,13 @@ void test_state_create() {
 	TEST_ASSERT(!info->paused);
 	TEST_ASSERT(info->score == 0);
 
-	// Προσθέστε επιπλέον ελέγχους
+
 	TEST_ASSERT(info->missile == NULL);
 
-
 	//state y offset
-    int state_y_offset = -info->jet->rect.y;
+    int state_y_offset = info->jet->rect.y;
 
-	List objects = state_objects(state, -state_y_offset  + SCREEN_HEIGHT, - state_y_offset - 2*SCREEN_HEIGHT);
+	List objects = state_objects(state, state_y_offset + 2*SCREEN_HEIGHT, state_y_offset - 2*SCREEN_HEIGHT);
 	TEST_ASSERT(objects != NULL);
 	TEST_ASSERT(list_size(objects) >= 5);
 
@@ -36,7 +35,7 @@ void test_state_create() {
 		node = list_next(objects, node)) {
 
 		Object temp_object = list_node_value(objects, node);
-		TEST_ASSERT(temp_object->rect.y <= -state_y_offset + SCREEN_HEIGHT && temp_object->rect.y >= - state_y_offset - 2*SCREEN_HEIGHT);
+		TEST_ASSERT(temp_object->rect.y <= state_y_offset + SCREEN_HEIGHT && temp_object->rect.y >= state_y_offset - 2*SCREEN_HEIGHT);
 	}
 	objects = state_objects(state, -50, -500);
 	TEST_ASSERT(objects != NULL);
@@ -70,9 +69,6 @@ void test_state_update() {
 	keys.up = false;
 
 
-	// Προσθέστε επιπλέον ελέγχους
-	
-
 	// Με πατημένο το κάτω βέλος, το αεροσκάφος μετακινείται 2 pixels μπροστά
 	keys.down = true;
 	old_rect = state_info(state)->jet->rect;
@@ -88,7 +84,7 @@ void test_state_update() {
 	state_update(state, &keys);
 	new_rect = state_info(state)->jet->rect;
 
-	TEST_CHECK( new_rect.x == old_rect.x + 3 && new_rect.y == old_rect.y - 3);
+	TEST_CHECK( new_rect.x == old_rect.x + 3 && new_rect.y == old_rect.y - 3 );
 	keys.right = false;
 
 	// Με πατημένο το αριστερό βέλος, το αεροσκάφος μετακινείται 2 pixels αριστερά
@@ -97,7 +93,7 @@ void test_state_update() {
 	state_update(state, &keys);
 	new_rect = state_info(state)->jet->rect;
 
-	TEST_CHECK( new_rect.x == old_rect.x - 3 && new_rect.y == old_rect.y - 3);
+	TEST_CHECK( new_rect.x == old_rect.x - 3 && new_rect.y == old_rect.y - 3 );
 	keys.left = false;
 
 	// Έλεγχος κίνησης πυραύλων
@@ -107,7 +103,7 @@ void test_state_update() {
 	state_update(state, &keys);
 	new_rect = state_info(state)->missile->rect;
 
-	TEST_CHECK( new_rect.x == old_rect.x && new_rect.y == old_rect.y - 10);
+	TEST_CHECK( new_rect.x == old_rect.x && new_rect.y == old_rect.y - 10 );
 	keys.space = false;
 
 	// Έλεγχος συγκρούσεων πυραύλων
@@ -120,9 +116,9 @@ void test_state_update() {
 
 	StateInfo info = state_info(state);
 	//state y offset
-    int state_y_offset = -info->jet->rect.y;
+    int state_y_offset = info->jet->rect.y;
 
-	List list = state_objects(state, -state_y_offset  + SCREEN_HEIGHT, - state_y_offset - 2*SCREEN_HEIGHT);
+	List list = state_objects(state, state_y_offset + 2*SCREEN_HEIGHT, state_y_offset - 2*SCREEN_HEIGHT);
 	for(ListNode node = list_first(list);
 		node != LIST_EOF;
 		node = list_next(list, node)) {
@@ -130,22 +126,16 @@ void test_state_update() {
 		Object temp_object = list_node_value(list, node);
 		if (temp_object->type == TERAIN)  {
 			if (temp_object->rect.x == info->missile->rect.x || temp_object->rect.y == info->missile->rect.y)
-				TEST_CHECK( CheckCollisionRecs(temp_object->rect, info->missile->rect));
+				TEST_CHECK( CheckCollisionRecs(temp_object->rect, info->missile->rect) );
 		}
 		if (temp_object->type == HELICOPTER ||
 			temp_object->type == WARSHIP ||
 			temp_object->type == BRIDGE)  {
 
 			if (temp_object->rect.x == info->missile->rect.x || temp_object->rect.y == info->missile->rect.y)
-				TEST_CHECK( CheckCollisionRecs(temp_object->rect, info->missile->rect));
+				TEST_CHECK( CheckCollisionRecs(temp_object->rect, info->missile->rect) );
 		}
 	}
-
-	TEST_CHECK( new_rect.x == old_rect.x && new_rect.y == old_rect.y - 10);
-	keys.space = false;
-
-	// Έλεγχος συγκρούσεων εχθρών με terain
-	
 }
 
 

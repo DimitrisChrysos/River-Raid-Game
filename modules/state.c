@@ -151,7 +151,6 @@ List state_objects(State state, float y_from, float y_to) {
 // Ενημερώνει την κατάσταση state του παιχνιδιού μετά την πάροδο 1 frame.
 // Το keys περιέχει τα πλήκτρα τα οποία ήταν πατημένα κατά το frame αυτό.
 
-// static int x=1;
 void state_update(State state, KeyState keys) {
 	
 	// jet movement
@@ -177,9 +176,9 @@ void state_update(State state, KeyState keys) {
 	// enemy movement
 
 	//state y offset
-    int state_y_offset = -state->info.jet->rect.y;
+    int state_y_offset = state->info.jet->rect.y;
 
-	List list = state_objects(state, -state_y_offset  + SCREEN_HEIGHT, - state_y_offset - 2*SCREEN_HEIGHT);
+	List list = state_objects(state, state_y_offset + 2*SCREEN_HEIGHT, state_y_offset - 2*SCREEN_HEIGHT);
 	for(ListNode node = list_first(list);
 		node != LIST_EOF;
 		node = list_next(list, node)) {

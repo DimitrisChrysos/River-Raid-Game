@@ -87,9 +87,6 @@ void interface_draw_frame(State state)  {
     }
     
     // Σχεδίαση παιχνιδιού
-    
-    // state -> screen:    αφαιρώ τα offsets
-    // screen -> state:     προσθέτω τα offsets
     int y_offset = - (SCREEN_HEIGHT - 100);
     Camera2D camera = { 0 };
     camera.target = (Vector2){ (SCREEN_WIDTH - 35)/2, info->jet->rect.y};
