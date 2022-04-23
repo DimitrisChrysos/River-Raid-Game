@@ -204,7 +204,9 @@ void state_update(State state, KeyState keys) {
 	
 
 
-		// collisions
+		// ~~ collisions ~~
+
+		// jet collisions
 		if (temp_object->type == HELICOPTER ||
 			temp_object->type == WARSHIP ||
 			temp_object->type == TERAIN ||
@@ -215,6 +217,8 @@ void state_update(State state, KeyState keys) {
 				return;
 			}
 		}
+
+		// enemy collisions
 		if (temp_object->type == HELICOPTER ||
 			temp_object->type == WARSHIP)  {
 

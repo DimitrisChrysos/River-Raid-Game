@@ -180,10 +180,12 @@ List state_objects(State state, float y_from, float y_to) {
 // Ενημερώνει την κατάσταση state του παιχνιδιού μετά την πάροδο 1 frame.
 // Το keys περιέχει τα πλήκτρα τα οποία ήταν πατημένα κατά το frame αυτό.
 
+int total_bridges = BRIDGE_NUM-1;  //used to make the track  
+Object last_bridge;			 	 //infinite later
+
 void state_update(State state, KeyState keys) {
 	
 	// jet movement
-	
 	if (keys->up == true)  {
 		state->info.jet->rect.y -= 6*state->speed_factor;
 	}
@@ -200,14 +202,20 @@ void state_update(State state, KeyState keys) {
 	else if (keys->left == true)  {
 		state->info.jet->rect.x -= 3*state->speed_factor;
 	}
-	
+
+
+	// misile movement
+	if (state->info.missile != NULL)  {				// if there is a missile
+		state->info.missile->rect.y -= 10*state->speed_factor;
+	}
+
 
 	// enemy movement
 
 	//state y offset
-    int state_y_offset = -state->info.jet->rect.y;
+    int state_y_offset = state->info.jet->rect.y;
 
-	List list = state_objects(state, -state_y_offset  + SCREEN_HEIGHT, - state_y_offset - 2*SCREEN_HEIGHT);
+	List list = state_objects(state, state_y_offset + 2*SCREEN_HEIGHT, state_y_offset - 2*SCREEN_HEIGHT);
 	for(ListNode node = list_first(list);
 		node != LIST_EOF;
 		node = list_next(list, node)) {
@@ -233,10 +241,9 @@ void state_update(State state, KeyState keys) {
 
 
 
-		// collisions
+		// ~~ collisions ~~
 
-
-
+		// jet collisions
 		if (temp_object->type == HELICOPTER ||
 			temp_object->type == WARSHIP ||
 			temp_object->type == TERAIN ||
@@ -248,6 +255,7 @@ void state_update(State state, KeyState keys) {
 			}
 		}
 
+		// enemy collisions
 		Object terrain_left;
 		Object terrain_right;
 		static float x_left;
@@ -294,76 +302,63 @@ void state_update(State state, KeyState keys) {
 		}
 
 
+		// ~~ missile mechanics ~~
 
+		// creating the missile
+		if (keys->space == true && state->info.missile == NULL)  {
+			state->info.missile = create_object(MISSLE, state->info.jet->rect.x + 15,  state->info.jet->rect.y - 40/2, 5, 40/2);
+		}
 
-
-
-	// for testttttttttttt
-		// SetNode node = set_first(state->objects);
-		// for (int i=0 ; i < set_size(state->objects) ; i++)  {
-		// 	Object temp_object = set_node_value(state->objects, node);
-		// 	if (temp_object->type == TERAIN)
-		// 		printf("yes, %d\n", i);
-		// 	else
-		// 		printf("no, %d\n", i);
-		// 	node = set_next(state->objects, node);
+		// if there is a missile
+		if (state->info.missile != NULL)  {
 			
-		// }
-		
-		
+			// if missile is a screen higher than then missile it gets destroyed
+			if (state->info.missile->rect.y < state->info.jet->rect.y - SCREEN_HEIGHT)  {
+				state->info.missile = NULL;
+				return;
+			}
 
-		// if (temp_object->type == HELICOPTER ||
-		// 	temp_object->type == WARSHIP ||
-		// 	temp_object->type == TERAIN ||
-		// 	temp_object->type == BRIDGE)  {
+			
 
-		// 	if (CheckCollisionRecs(state->info.jet->rect, temp_object->rect) == true)  {
-		// 		state->info.playing = false;
-		// 		return;
-		// 	}
-		// }
-		// static float x_left;
-		// static float x_right;
-		// if (temp_object->type == TERAIN)  {
-		// 	x_left = temp_object->rect.x;
-		// 	ListNode for_right_x = list_next(list, node);
-		// 	Object for_right_x_terain = list_node_value(list, for_right_x);
-		// 	x_right = for_right_x_terain->rect.x;
-		// 	continue;
-		// }
-		// if (temp_object->type == HELICOPTER ||
-		// 	temp_object->type == WARSHIP)  {
+			// misile collisions
 
-		// 	if (temp_object->rect.x == x_left || temp_object->rect.x == x_right)  {
-		// 		if (temp_object->forward == true)  {
-		// 			temp_object->forward = false;
-		// 		}
-		// 		else if (temp_object->forward == false)  {
-		// 			temp_object->forward = true;
-		// 		}
-		// 	}
-		// }
+			Object temp_object = list_node_value(list, node);
 
-		// if (temp_object->type == HELICOPTER ||
-		// 	temp_object->type == WARSHIP)  {
+			// misile collision with the terain
+			if (temp_object->type == TERAIN)  {
+				if (CheckCollisionRecs(temp_object->rect, state->info.missile->rect) == true)  {
+				state->info.missile = NULL;
+				return;
+				}
+			}
 
-		// 	for(SetNode node = set_first(state->objects);
-		// 		node != SET_EOF;
-		// 		node = set_next(state->objects, node)) {
+			// misile collision with a helicopter, warship or a bridge
+			if (temp_object->type == HELICOPTER ||
+				temp_object->type == WARSHIP)  {
 
-		// 		Object temp_terain = set_node_value(state->objects, node);
-		// 		if (temp_terain->type == TERAIN)  {
-		// 			if (CheckCollisionRecs(temp_object->rect, temp_terain->rect) == true)  {
-		// 				if (temp_object->forward == true)  {
-		// 					temp_object->forward = false;
-		// 				}
-		// 				else if (temp_object->forward == false)  {
-		// 					temp_object->forward = true;
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// }
+				if (CheckCollisionRecs(temp_object->rect, state->info.missile->rect) == true)  {
+
+					set_remove(state->objects, list_node_value(list, node));
+					state->info.missile = NULL;
+					state->info.score += 10;
+					return;
+				}
+			}
+			else if (temp_object->type == BRIDGE)  {
+
+				if (CheckCollisionRecs(temp_object->rect, state->info.missile->rect) == true)  {
+
+					set_remove(state->objects, list_node_value(list, node));
+					state->info.missile = NULL;
+					state->info.score += 10;
+					total_bridges--;
+					return;
+				}
+			}
+		}
+		if (total_bridges == 1 && temp_object->type == BRIDGE && last_bridge == NULL)  {
+ 			last_bridge = temp_object;
+		}
 	}
 
 
@@ -385,80 +380,15 @@ void state_update(State state, KeyState keys) {
 	else if (keys->n == true && state->info.paused == true)  {
 		return;
 	}
-
-
-	// ~~ missile mechanics ~~
-
-	// creating the missile
-	if (keys->space == true && state->info.missile == NULL)  {
-		state->info.missile = create_object(MISSLE, state->info.jet->rect.x + 15,  state->info.jet->rect.y - 40/2, 5, 40/2);
-	}
-
-	// if there is a missile
-	if (state->info.missile != NULL)  {
-		
-		// if missile is a screen higher than then missile it gets destroyed
-		if (state->info.missile->rect.y < state->info.jet->rect.y - SCREEN_HEIGHT)  {
-			state->info.missile = NULL;
-			return;
-		}
-
-		// misile movement
-		state->info.missile->rect.y -= 10*state->speed_factor;
-
-		// misile collisions
-		for(SetNode node = set_first(state->objects);
-			node != SET_EOF;
-			node = set_next(state->objects, node)) {
-
-			Object temp_object = set_node_value(state->objects, node);
-
-			// misile collision with the terain
-			if (temp_object->type == TERAIN)  {
-				if (CheckCollisionRecs(temp_object->rect, state->info.missile->rect) == true)  {
-				state->info.missile = NULL;
-				return;
-				}
-			}
-
-			// misile collision with a helicopter, warship or a bridge
-			if (temp_object->type == HELICOPTER ||
-				temp_object->type == WARSHIP ||
-				temp_object->type == BRIDGE)  {
-
-				if (CheckCollisionRecs(temp_object->rect, state->info.missile->rect) == true)  {
-
-					set_remove(state->objects, set_node_value(state->objects, node));
-					state->info.missile = NULL;
-					state->info.score += 10;
-					return;
-				}
-			}
-		}
-	}
 	
 
-	//making the track "infinite"
-	int count_bridges = 0;
-	
-	
-	Object last_bridge;
-	for(SetNode node = set_first(state->objects);
-		node != SET_EOF;
-		node = set_next(state->objects, node)) {
-
-		Object temp_object = set_node_value(state->objects, node);
-		if (temp_object->type == BRIDGE)  {
-			count_bridges++;
-			if (count_bridges == 1)  {
-				last_bridge = temp_object;
-			}
-		}
-	}
-	if (count_bridges == 1)  {
+	// //making the track "infinite"
+	if (total_bridges == 0 && last_bridge != NULL)  {
 		if (state->info.jet->rect.y <= last_bridge->rect.y + SCREEN_HEIGHT)  {
-			add_objects(state, last_bridge->rect.y);
+			add_objects(state, last_bridge->rect.y - SCREEN_HEIGHT);
 			state->speed_factor += state->speed_factor*0.3;
+			total_bridges = BRIDGE_NUM;
+			last_bridge = NULL;
 		}
 	}
 }

@@ -116,11 +116,11 @@ void interface_draw_frame(State state)  {
     }
 
     // state y offset
-    int state_y_offset = -info->jet->rect.y;
+    int state_y_offset = info->jet->rect.y;
     
 
     // Σχεδιάζουμε τα objects
-    List objects1 = state_objects(state, -state_y_offset + SCREEN_HEIGHT, - state_y_offset - 2*SCREEN_HEIGHT);
+    List objects1 = state_objects(state, state_y_offset + 2*SCREEN_HEIGHT, state_y_offset - 2*SCREEN_HEIGHT);
     for (ListNode node = list_first(objects1);
         node != LIST_EOF;
         node = list_next(objects1, node))  {
