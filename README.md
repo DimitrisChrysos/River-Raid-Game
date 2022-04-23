@@ -31,9 +31,16 @@ __Α.Μ.__: sdi2100275
 πράγμα που συνιστάται.
 
 
-    - set_utils_test ελέγχεται με make run στο terminal
+    * set_utils_test ελέγχεται με make run στο terminal
 
-    - Σύγκριση γεφυρών:
+    * Σύγκριση γεφυρών:
 
-        - Στην state.c: πέφτει από 60fps όταν BRIDGE_NUM > 25000, γέφυρες περίπου.
-        - Στην state_alt.c δεν παρατηρείται πτώση κάτω των 60fps σίγουρα μέχρι και BRIDGE_NUM = 4000000, όμως μετά τις 100000 γέφυρες αρχίζει να υπάρχει καθυστέρηση στη αρχή και το restart του παιχνιδιού.
+        * Στην state.c: πέφτει από 60fps όταν BRIDGE_NUM > 25000, γέφυρες περίπου.
+        * Στην state_alt.c δεν παρατηρείται πτώση κάτω των 60fps σίγουρα μέχρι
+        και BRIDGE_NUM = 4000000, όμως μετά τις 100000 γέφυρες αρχίζει να υπάρχει
+        καθυστέρηση στη αρχή και το restart του παιχνιδιού.
+
+    * soundtrack link:
+    
+        https://downloads.khinsider.com/game-soundtracks/album/eswat-cyber-police-arcade/03%2520BGM%25201.mp3
+
