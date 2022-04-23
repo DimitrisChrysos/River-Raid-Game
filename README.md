@@ -44,3 +44,7 @@ __Α.Μ.__: sdi2100275
     
         https://downloads.khinsider.com/game-soundtracks/album/eswat-cyber-police-arcade/03%2520BGM%25201.mp3
 
+    * για τις διάφορες ασκήσεις και τα ερωτήματα τους:
+        στα makefile αρχεία υπάρχουν διαφορετικές περιπτώσεις για "# Αρχεία .o".
+        Ανάλογα τι θέλουμε να τρέξουμε, κάνουμε comment μία περίπτωση και uncomment κάποια άλλη. 
+
