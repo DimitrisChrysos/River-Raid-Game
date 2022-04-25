@@ -67,7 +67,7 @@ void test_set_find_eq_or_smaller() {
     Pointer int_14 = set_find(set, create_int(14));
     TEST_ASSERT(value == int_14);
 
-    // test αν άδιο set
+    // test αν άδειο set
     set = set_create(compare_ints, free);
     value = set_find_eq_or_smaller(set, int_15);
     TEST_ASSERT(value == NULL);
