@@ -23,16 +23,6 @@ Enemies and terrain behave dynamically:
 
 ---
 
-## 🚀 How to Run
-
-### Linux (or WSL)
-```bash
-make
-./game
-```
-
----
-
 ## 📎 Resources
 
 - Demo: [River Raid Solution Demo](https://k08.chatzi.org/games/2022/solution/game.html)
