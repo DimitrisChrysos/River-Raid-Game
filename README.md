@@ -1,6 +1,6 @@
 # ✈️ River Raid Game — 2D Shooter with Dynamic World in C & Raylib
 
-A clone of the classic *River Raid* arcade game, built using C and the Raylib graphics library. Developed for the course **Δομές Δεδομένων και Τεχνικές Προγραμματισμού**, this project emphasizes modular game design, state management, graphical rendering, and responsive user input.
+A clone of the classic *River Raid* arcade game, built using C and the Raylib graphics library. Developed for the course **Data Structures and Programming Techniques**, this project emphasizes modular game design, state management, graphical rendering, and responsive user input.
 
 - Δημήτριος Χρυσός – 1115202100275
 
@@ -25,13 +25,12 @@ Enemies and terrain behave dynamically:
 
 ## 📎 Resources
 
-- Demo: [River Raid Solution Demo](https://k08.chatzi.org/games/2022/solution/game.html)
 - Docs: See `raylib.h` or [Raylib C API](https://www.raylib.com/cheatsheet/cheatsheet.html)
 
 ---
 
 Project for:  
-**Τεχνολογίες Προγραμματισμού Ι — Εργασία 1**  
+**Data Structures and Programming Techniques — Project 1**  
 Instructions: https://k08.chatzi.org/2022/projects/project1/  
 Semester: Spring 2022  
 Instructor: k08 team (k08.chatzi.org)
